@@ -71,161 +71,83 @@ public class ChessPiece {
 
 
     private void kingMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
+
         int[][] coordinates = {{}, {}, {}, {}};
 
-        for (int[] coordinate : coordinates) {
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
-
-            while (validMove(row, col)) {
-                row += coordinate[0];
-                col += coordinate[1];
-
-                var destination = new ChessPosition(row, col);
-                var atDestination = board.getPiece(destination);
-
-                if (atDestination == null || atDestination.getTeamColor() != this.getTeamColor()) {
-                    allMoves.add(new ChessMove(myPosition, destination, null));
-                } else {
-                    break;
-                }
-            }
-
-        }
+        pieceMove(board, myPosition, allMoves, coordinates);
 
     }
 
     private void queenMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
+
         int[][] coordinates = {{}, {}, {}, {}};
 
-        for (int[] coordinate : coordinates) {
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
-
-            while (validMove(row, col)) {
-                row += coordinate[0];
-                col += coordinate[1];
-
-                var destination = new ChessPosition(row, col);
-                var atDestination = board.getPiece(destination);
-
-                if (atDestination == null || atDestination.getTeamColor() != this.getTeamColor()) {
-                    allMoves.add(new ChessMove(myPosition, destination, null));
-                } else {
-                    break;
-                }
-            }
-
-        }
+        pieceMove(board, myPosition, allMoves, coordinates);
 
     }
 
     private void bishopMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
-        int[][] coordinates = {{}, {}, {}, {}};
 
-        for (int[] coordinate : coordinates) {
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
+        int[][] coordinates = {{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
 
-            while (validMove(row, col)) {
-                row += coordinate[0];
-                col += coordinate[1];
-
-                var destination = new ChessPosition(row, col);
-                var atDestination = board.getPiece(destination);
-
-                if (atDestination == null || atDestination.getTeamColor() != this.getTeamColor()) {
-                    allMoves.add(new ChessMove(myPosition, destination, null));
-                } else {
-                    break;
-                }
-            }
-
-        }
-
+        pieceMove(board, myPosition, allMoves, coordinates);
 
     }
 
     private void knightMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
+
         int[][] coordinates = {{}, {}, {}, {}};
 
-        for (int[] coordinate : coordinates) {
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
-
-            while (validMove(row, col)) {
-                row += coordinate[0];
-                col += coordinate[1];
-
-                var destination = new ChessPosition(row, col);
-                var atDestination = board.getPiece(destination);
-
-                if (atDestination == null || atDestination.getTeamColor() != this.getTeamColor()) {
-                    allMoves.add(new ChessMove(myPosition, destination, null));
-                } else {
-                    break;
-                }
-            }
-
-        }
-
+        pieceMove(board, myPosition, allMoves, coordinates);
 
     }
 
     private void rookMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
+
         int[][] coordinates = {{}, {}, {}, {}};
 
-        for (int[] coordinate : coordinates) {
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
-
-            while (validMove(row, col)) {
-                row += coordinate[0];
-                col += coordinate[1];
-
-                var destination = new ChessPosition(row, col);
-                var atDestination = board.getPiece(destination);
-
-                if (atDestination == null || atDestination.getTeamColor() != this.getTeamColor()) {
-                    allMoves.add(new ChessMove(myPosition, destination, null));
-                } else {
-                    break;
-                }
-            }
-
-        }
-
+        pieceMove(board, myPosition, allMoves, coordinates);
 
     }
 
     private void pawnMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
+
         int[][] coordinates = {{}, {}, {}, {}};
 
+        pieceMove(board, myPosition, allMoves, coordinates);
+
+    }
+
+    private void pieceMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves, int[][] coordinates) {
         for (int[] coordinate : coordinates) {
             int row = myPosition.getRow();
             int col = myPosition.getColumn();
 
-            while (validMove(row, col)) {
+            while (true) {
                 row += coordinate[0];
                 col += coordinate[1];
 
-                var destination = new ChessPosition(row, col);
-                var atDestination = board.getPiece(destination);
+                if (validMove(row, col)) {
+                    var destination = new ChessPosition(row, col);
+                    var atDestination = board.getPiece(destination);
 
-                if (atDestination == null || atDestination.getTeamColor() != this.getTeamColor()) {
-                    allMoves.add(new ChessMove(myPosition, destination, null));
+                    if (atDestination == null || atDestination.getTeamColor() != this.getTeamColor()) {
+                        allMoves.add(new ChessMove(myPosition, destination, null));
+                    } else {
+                        break;
+                    }
+
                 } else {
                     break;
                 }
+
             }
 
         }
-
-
     }
 
     private boolean validMove(int row, int col) {
-        return row >= 1 && row <= 8 || col >= 1 && col <= 8;
+        return row >= 1 && row <= 8 && col >= 1 && col <= 8;
     }
 
     @Override
