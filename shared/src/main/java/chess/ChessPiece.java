@@ -205,14 +205,59 @@ public class ChessPiece {
 
     private void knightMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
 
-        int[][] coordinates = {{}, {}, {}, {}};
+        int[][] coordinates = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
 
+        for (int[] coordinate : coordinates) {
+            int row = myPosition.getRow();
+            int col = myPosition.getColumn();
+
+            row += coordinate[0];
+            col += coordinate[1];
+
+            if (validMove(row, col)) {
+                var destination = new ChessPosition(row, col);
+                var atDestination = board.getPiece(destination);
+
+                if (atDestination == null || atDestination.getTeamColor() != this.getTeamColor()) {
+                    allMoves.add(new ChessMove(myPosition, destination, null));
+                }
+
+            }
+
+        }
 
     }
 
     private void pawnMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
 
-        int[][] coordinates = {{}, {}, {}, {}};
+        int startRow = myPosition.getRow();
+
+        if (startRow == 2) {
+
+            int[][] coordinates = {{1, -1}, {1, 0}, {1, 0}, {2, 0}};
+
+            for (int[] coordinate : coordinates) {
+                int row = myPosition.getRow();
+                int col = myPosition.getColumn();
+
+                row += coordinate[0];
+                col += coordinate[1];
+
+                if (validMove(row, col)) {
+                    var destination = new ChessPosition(row, col);
+                    var atDestination = board.getPiece(destination);
+
+                    if (atDestination == null || atDestination.getTeamColor() != this.getTeamColor()) {
+                        allMoves.add(new ChessMove(myPosition, destination, null));
+                    }
+
+                }
+
+            }
+
+        } else {
+            
+        }
 
 
     }
