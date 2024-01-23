@@ -98,8 +98,11 @@ public class ChessPiece {
                     var destination = new ChessPosition(row, col);
                     var atDestination = board.getPiece(destination);
 
-                    if (atDestination == null || atDestination.getTeamColor() != this.getTeamColor()) {
+                    if (atDestination == null) {
                         allMoves.add(new ChessMove(myPosition, destination, null));
+                    } else if (atDestination.getTeamColor() != this.getTeamColor()) {
+                        allMoves.add(new ChessMove(myPosition, destination, null));
+                        break;
                     } else {
                         break;
                     }
