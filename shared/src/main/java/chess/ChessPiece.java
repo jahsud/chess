@@ -55,7 +55,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 
-        Collection<ChessMove> allMoves = new ArrayList<>();
+        Collection<ChessMove> allMoves = new ArrayList<>(); // HashSet<ChesMove> name = new HashSet<>();
 
         switch (this.getPieceType()) {
             case KING -> kingMove(board, myPosition, allMoves);
@@ -74,15 +74,11 @@ public class ChessPiece {
 
         int[][] coordinates = {{}, {}, {}, {}};
 
-        pieceMove(board, myPosition, allMoves, coordinates);
-
     }
 
     private void queenMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
 
         int[][] coordinates = {{}, {}, {}, {}};
-
-        pieceMove(board, myPosition, allMoves, coordinates);
 
     }
 
@@ -90,35 +86,6 @@ public class ChessPiece {
 
         int[][] coordinates = {{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
 
-        pieceMove(board, myPosition, allMoves, coordinates);
-
-    }
-
-    private void knightMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
-
-        int[][] coordinates = {{}, {}, {}, {}};
-
-        pieceMove(board, myPosition, allMoves, coordinates);
-
-    }
-
-    private void rookMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
-
-        int[][] coordinates = {{}, {}, {}, {}};
-
-        pieceMove(board, myPosition, allMoves, coordinates);
-
-    }
-
-    private void pawnMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
-
-        int[][] coordinates = {{}, {}, {}, {}};
-
-        pieceMove(board, myPosition, allMoves, coordinates);
-
-    }
-
-    private void pieceMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves, int[][] coordinates) {
         for (int[] coordinate : coordinates) {
             int row = myPosition.getRow();
             int col = myPosition.getColumn();
@@ -144,7 +111,31 @@ public class ChessPiece {
             }
 
         }
+
+
     }
+
+    private void knightMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
+
+        int[][] coordinates = {{}, {}, {}, {}};
+
+
+    }
+
+    private void rookMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
+
+        int[][] coordinates = {{}, {}, {}, {}};
+
+
+    }
+
+    private void pawnMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
+
+        int[][] coordinates = {{}, {}, {}, {}};
+
+
+    }
+
 
     private boolean validMove(int row, int col) {
         return row >= 1 && row <= 8 && col >= 1 && col <= 8;
@@ -154,12 +145,25 @@ public class ChessPiece {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         ChessPiece that = (ChessPiece) o;
-        return pieceColor == that.pieceColor && type == that.type;
+
+        if (pieceColor != that.pieceColor) return false;
+        return type == that.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pieceColor, type);
+        int result = pieceColor != null ? pieceColor.hashCode() : 0;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                ", type=" + type +
+                '}';
     }
 }

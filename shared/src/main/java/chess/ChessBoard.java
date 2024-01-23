@@ -10,7 +10,7 @@ import java.util.Arrays;
  */
 public class ChessBoard {
 
-    private ChessPiece[][] board = new ChessPiece[8][8];
+    private ChessPiece[][] squares = new ChessPiece[8][8];
 
     public ChessBoard() {
 
@@ -23,7 +23,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        board[position.getRow() - 1][position.getColumn() - 1] = piece;
+        squares[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
     /**
@@ -34,7 +34,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return board[position.getRow() - 1][position.getColumn() - 1];
+        return squares[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**
@@ -49,13 +49,14 @@ public class ChessBoard {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         ChessBoard that = (ChessBoard) o;
-        return Arrays.deepEquals(board, that.board);
+
+        return Arrays.deepEquals(squares, that.squares);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.deepHashCode(board);
+        return Arrays.deepHashCode(squares);
     }
-
 }
