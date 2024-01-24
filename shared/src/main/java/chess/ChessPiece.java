@@ -59,7 +59,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 
-        HashSet<ChessMove> allMoves = new HashSet<>();
+        HashSet<ChessMove> allMoves = new HashSet<>(); // Had to use a HasSet instead of a Collection of ArrayList.
         //Collection<ChessMove> allMoves = new ArrayList<>();
 
         switch (this.getPieceType()) {
