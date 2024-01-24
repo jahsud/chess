@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
+
 /**
  * Represents a single chess piece
  * <p>
@@ -55,7 +58,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 
-        Collection<ChessMove> allMoves = new ArrayList<>(); // HashSet<ChesMove> name = new HashSet<>();
+        Collection<ChessMove> allMoves = new ArrayList<>(); // HashSet<ChessMove> allMoves = new HashSet<>();
 
         switch (this.getPieceType()) {
             case KING -> kingMove(board, myPosition, allMoves);
@@ -230,36 +233,108 @@ public class ChessPiece {
 
     private void pawnMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves) {
 
+        var color = this.getTeamColor();
         int startRow = myPosition.getRow();
 
-        if (startRow == 2) {
+        // Moving and capturing coordinates are different for pawns
+        int[][] movingCoordinates;
+        int[][] capturingCoordinates;
 
-            int[][] coordinates = {{1, -1}, {1, 0}, {1, 0}, {2, 0}};
+        // If piece is white, then it moves forward
+        if (color == WHITE) {
 
-            for (int[] coordinate : coordinates) {
-                int row = myPosition.getRow();
-                int col = myPosition.getColumn();
-
-                row += coordinate[0];
-                col += coordinate[1];
-
-                if (validMove(row, col)) {
-                    var destination = new ChessPosition(row, col);
-                    var atDestination = board.getPiece(destination);
-
-                    if (atDestination == null || atDestination.getTeamColor() != this.getTeamColor()) {
-                        allMoves.add(new ChessMove(myPosition, destination, null));
-                    }
-
-                }
-
+            if (startRow == 2) {
+                // Pawns have the option to move two squares at first move
+                movingCoordinates = new int[][]{{1, 0}, {2, 0}};
+                pawnMovingRule(board, myPosition, allMoves, movingCoordinates);
+            } else {
+                // Pawns can only move one square after the first move
+                movingCoordinates = new int[][]{{1, 0}};
+                pawnMovingRule(board, myPosition, allMoves, movingCoordinates);
             }
 
-        } else {
-            
+            // Forward capturing coordinates work the same way no matter where you start
+            capturingCoordinates = new int[][]{{1, -1}, {1, 1}};
+            pawnCapturingRule(board, myPosition, allMoves, capturingCoordinates);
+
+        } else { // If piece is black, then it moves backward
+
+            if (startRow == 7) {
+                // Pawns have the option to move two squares at first move
+                movingCoordinates = new int[][]{{-1, 0}, {-2, 0}};
+                pawnMovingRule(board, myPosition, allMoves, movingCoordinates);
+            } else {
+                // Pawns can only move one square after the first move
+                movingCoordinates = new int[][]{{-1, 0}};
+                pawnMovingRule(board, myPosition, allMoves, movingCoordinates);
+            }
+
+            // Forward capturing coordinates work the same way no matter where you start
+            capturingCoordinates = new int[][]{{-1, -1}, {-1, 1}};
+            pawnCapturingRule(board, myPosition, allMoves, capturingCoordinates);
+
         }
 
+    }
 
+    private void pawnMovingRule(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves, int[][] movingCoordinates) {
+        for (int[] coordinate : movingCoordinates) {
+            int row = myPosition.getRow();
+            int col = myPosition.getColumn();
+
+            row += coordinate[0];
+            col += coordinate[1];
+
+            if (validMove(row, col)) {
+                var destination = new ChessPosition(row, col);
+                var atDestination = board.getPiece(destination);
+
+                if (atDestination == null) {
+                    // Check for pawn promotion
+                    if ((this.getTeamColor() == WHITE && row == 8) || (this.getTeamColor() == BLACK && row == 1)) {
+                        // Promotion; usually to a queen, but can be any piece
+                        allMoves.add(new ChessMove(myPosition, destination, PieceType.BISHOP));
+                        allMoves.add(new ChessMove(myPosition, destination, PieceType.QUEEN));
+                        allMoves.add(new ChessMove(myPosition, destination, PieceType.ROOK));
+                        allMoves.add(new ChessMove(myPosition, destination, PieceType.KNIGHT));
+                    } else {
+                        allMoves.add(new ChessMove(myPosition, destination, null));
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
+
+    private void pawnCapturingRule(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> allMoves, int[][] capturingCoordinates) {
+        for (int[] coordinate : capturingCoordinates) {
+            int row = myPosition.getRow();
+            int col = myPosition.getColumn();
+
+            row += coordinate[0];
+            col += coordinate[1];
+
+            if (validMove(row, col)) {
+                var destination = new ChessPosition(row, col);
+                var atDestination = board.getPiece(destination);
+
+                if (atDestination != null && atDestination.getTeamColor() != this.getTeamColor()) {
+                    // Check if the pawn has reached the promotion rank
+                    if ((this.getTeamColor() == WHITE && row == 8) || (this.getTeamColor() != WHITE && row == 1)) {
+                        // If so, add a move for each promotion option
+                        allMoves.add(new ChessMove(myPosition, destination, PieceType.QUEEN));
+                        allMoves.add(new ChessMove(myPosition, destination, PieceType.ROOK));
+                        allMoves.add(new ChessMove(myPosition, destination, PieceType.BISHOP));
+                        allMoves.add(new ChessMove(myPosition, destination, PieceType.KNIGHT));
+                    } else {
+                        // If not eligible for promotion, add a regular move
+                        allMoves.add(new ChessMove(myPosition, destination, null));
+                    }
+                }
+            }
+        }
     }
 
 
@@ -280,16 +355,8 @@ public class ChessPiece {
 
     @Override
     public int hashCode() {
-        int result = pieceColor != null ? pieceColor.hashCode() : 0;
-        result = 31 * result + (type != null ? type.hashCode() : 0);
+        int result = pieceColor.hashCode();
+        result = 31 * result + type.hashCode();
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "ChessPiece{" +
-                "pieceColor=" + pieceColor +
-                ", type=" + type +
-                '}';
     }
 }

@@ -53,27 +53,16 @@ public class ChessMove {
 
         ChessMove chessMove = (ChessMove) o;
 
-        if (!Objects.equals(startPosition, chessMove.startPosition))
-            return false;
-        if (!Objects.equals(endPosition, chessMove.endPosition))
-            return false;
+        if (!startPosition.equals(chessMove.startPosition)) return false;
+        if (!endPosition.equals(chessMove.endPosition)) return false;
         return promotionPiece == chessMove.promotionPiece;
     }
 
     @Override
     public int hashCode() {
-        int result = startPosition != null ? startPosition.hashCode() : 0;
-        result = 31 * result + (endPosition != null ? endPosition.hashCode() : 0);
-        result = 31 * result + (promotionPiece != null ? promotionPiece.hashCode() : 0);
+        int result = startPosition.hashCode();
+        result = 31 * result + endPosition.hashCode();
+        result = 31 * result + promotionPiece.hashCode();
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "ChessMove{" +
-                "startPosition=" + startPosition +
-                ", endPosition=" + endPosition +
-                ", promotionPiece=" + promotionPiece +
-                '}';
     }
 }
