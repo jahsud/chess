@@ -295,10 +295,10 @@ public class ChessPiece {
                     // Check for pawn promotion
                     if ((this.getTeamColor() == WHITE && row == 8) || (this.getTeamColor() == BLACK && row == 1)) {
                         // Promotion; usually to a queen, but can be any piece
-                        allMoves.add(new ChessMove(myPosition, destination, PieceType.BISHOP));
                         allMoves.add(new ChessMove(myPosition, destination, PieceType.QUEEN));
-                        allMoves.add(new ChessMove(myPosition, destination, PieceType.ROOK));
+                        allMoves.add(new ChessMove(myPosition, destination, PieceType.BISHOP));
                         allMoves.add(new ChessMove(myPosition, destination, PieceType.KNIGHT));
+                        allMoves.add(new ChessMove(myPosition, destination, PieceType.ROOK));
                     } else {
                         allMoves.add(new ChessMove(myPosition, destination, null));
                     }
@@ -327,9 +327,9 @@ public class ChessPiece {
                     if ((this.getTeamColor() == WHITE && row == 8) || (this.getTeamColor() == BLACK && row == 1)) {
                         // If so, add a move for each promotion option
                         allMoves.add(new ChessMove(myPosition, destination, PieceType.QUEEN));
-                        allMoves.add(new ChessMove(myPosition, destination, PieceType.ROOK));
                         allMoves.add(new ChessMove(myPosition, destination, PieceType.BISHOP));
                         allMoves.add(new ChessMove(myPosition, destination, PieceType.KNIGHT));
+                        allMoves.add(new ChessMove(myPosition, destination, PieceType.ROOK));
                     } else {
                         // If not eligible for promotion, add a regular move
                         allMoves.add(new ChessMove(myPosition, destination, null));
