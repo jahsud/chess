@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 import static chess.ChessGame.TeamColor.BLACK;
@@ -58,7 +59,8 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 
-        Collection<ChessMove> allMoves = new ArrayList<>(); // HashSet<ChessMove> allMoves = new HashSet<>();
+        HashSet<ChessMove> allMoves = new HashSet<>();
+        //Collection<ChessMove> allMoves = new ArrayList<>();
 
         switch (this.getPieceType()) {
             case KING -> kingMove(board, myPosition, allMoves);
@@ -322,7 +324,7 @@ public class ChessPiece {
 
                 if (atDestination != null && atDestination.getTeamColor() != this.getTeamColor()) {
                     // Check if the pawn has reached the promotion rank
-                    if ((this.getTeamColor() == WHITE && row == 8) || (this.getTeamColor() != WHITE && row == 1)) {
+                    if ((this.getTeamColor() == WHITE && row == 8) || (this.getTeamColor() == BLACK && row == 1)) {
                         // If so, add a move for each promotion option
                         allMoves.add(new ChessMove(myPosition, destination, PieceType.QUEEN));
                         allMoves.add(new ChessMove(myPosition, destination, PieceType.ROOK));
@@ -355,8 +357,8 @@ public class ChessPiece {
 
     @Override
     public int hashCode() {
-        int result = pieceColor.hashCode();
-        result = 31 * result + type.hashCode();
+        int result = pieceColor != null ? pieceColor.hashCode() : 0;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
         return result;
     }
 }
