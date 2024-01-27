@@ -1,7 +1,5 @@
 package chess;
 
-import java.util.Objects;
-
 /**
  * Represents a single square position on a chess board
  * <p>
@@ -23,7 +21,7 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        return row;
+        return  row;
     }
 
     /**
@@ -52,4 +50,3 @@ public class ChessPosition {
         return result;
     }
 }
-
