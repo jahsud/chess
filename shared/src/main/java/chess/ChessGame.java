@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 
 /**
@@ -59,13 +61,13 @@ public class ChessGame {
         ChessPiece piece = getBoard().getPiece(startPosition);
 
         if (piece == null || piece.getTeamColor() != getTeamTurn()) {
-            return null; // Return null if no piece at position or not the piece's turn
+            return Collections.emptySet(); // Return an empty collection if no piece at position or not the piece's turn
         }
 
         Collection<ChessMove> potentialMoves = piece.pieceMoves(getBoard(), startPosition);
 
         // Filter the valid moves to exclude those that would leave the current team in check
-        HashSet<ChessMove> legalMoves = new HashSet<>();
+        Collection<ChessMove> legalMoves = new ArrayList<>();
 
         for (ChessMove move : potentialMoves) {
             // Simulate the move on a temporary board to check if it's legal.
@@ -102,6 +104,17 @@ public class ChessGame {
             ChessPiece movingPiece = getBoard().getPiece(move.getStartPosition());
             getBoard().addPiece(move.getEndPosition(), movingPiece);
             getBoard().addPiece(move.getStartPosition(), null);
+
+            // Check for pawn promotion
+            if (movingPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                // Check if the pawn has reached the last row
+                if ((move.getEndPosition().getRow() == 8 && movingPiece.getTeamColor() == TeamColor.WHITE) ||
+                        (move.getEndPosition().getRow() == 1 && movingPiece.getTeamColor() == TeamColor.BLACK)) {
+                    // Promote the pawn to the specified promotion piece
+                    ChessPiece promotedPiece = new ChessPiece(movingPiece.getTeamColor(), move.getPromotionPiece());
+                    getBoard().addPiece(move.getEndPosition(), promotedPiece);
+                }
+            }
 
             // Switch turn after a successful move.
             setTeamTurn(getTeamTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
@@ -172,7 +185,7 @@ public class ChessGame {
                 ChessPiece currentPiece = getBoard().getPiece(currentPosition);
 
                 // If the piece belongs to the team and has at least one legal move, it's not a stalemate.
-                if ((currentPiece != null) && (currentPiece.getTeamColor() == teamColor)) {
+                if (currentPiece != null && currentPiece.getTeamColor() == teamColor) {
                     Collection<ChessMove> moves = validMoves(currentPosition);
                     if (moves != null && !moves.isEmpty()) {
                         return false; // Found at least one legal move, so it's not a stalemate.
