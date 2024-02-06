@@ -13,7 +13,6 @@ public class ChessGame {
 
 
     private ChessBoard board;
-    private TeamColor team;
     private TeamColor teamTurn;
 
 
@@ -56,19 +55,21 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves (ChessPosition startPosition) {
+        // Get the valid moves for the piece at the start position
         ChessPiece piece = getBoard().getPiece(startPosition);
 
         if (piece == null || piece.getTeamColor() != getTeamTurn()) {
-            return null; // No piece at position or not the piece's turn.
+            return null; // Return null if no piece at position or not the piece's turn
         }
 
         Collection<ChessMove> potentialMoves = piece.pieceMoves(getBoard(), startPosition);
+
+        // Filter the valid moves to exclude those that would leave the current team in check
         HashSet<ChessMove> legalMoves = new HashSet<>();
 
         for (ChessMove move : potentialMoves) {
             // Simulate the move on a temporary board to check if it's legal.
-            ChessBoard tempBoard = getBoard().copy(); // Assumes a clone method is available.
-
+            ChessBoard tempBoard = getBoard().copy();
             ChessPosition start = move.getStartPosition();
             ChessPosition end = move.getEndPosition();
 
@@ -76,10 +77,12 @@ public class ChessGame {
             tempBoard.addPiece(end, movingPiece);
             tempBoard.addPiece(start, null);
 
-            // Add handling for special moves (e.g., pawn promotion, castling) if necessary.
-            if (!isInCheck(piece.getTeamColor(), tempBoard)) {
+            // Check if piece is left in check after the move
+            if (!isInCheck(piece.getTeamColor())) {
                 legalMoves.add(move);
             }
+
+            // Add handling for special moves (e.g., pawn promotion, castling) if necessary.
         }
 
         return legalMoves;
@@ -99,9 +102,8 @@ public class ChessGame {
             ChessPiece movingPiece = getBoard().getPiece(move.getStartPosition());
             getBoard().addPiece(move.getEndPosition(), movingPiece);
             getBoard().addPiece(move.getStartPosition(), null);
-            // Additional handling for special moves as needed.
 
-            // Switch turn.
+            // Switch turn after a successful move.
             setTeamTurn(getTeamTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
         } else {
             throw new InvalidMoveException("Illegal move attempted.");
@@ -182,7 +184,6 @@ public class ChessGame {
         // No legal moves found for any piece, it's a stalemate.
         return true;
     }
-    }
 
     private ChessPosition findKingPosition (TeamColor teamColor) {
         for (int row = 1; row <= 8; row++) {
@@ -198,7 +199,8 @@ public class ChessGame {
         }
 
         // The king should always be on the board, so this should not happen
-        throw new IllegalStateException("King not found on the board.");
+        // throw new IllegalStateException("King not found on the board.");
+        return null;
     }
 
     /**
