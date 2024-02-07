@@ -1,9 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -57,11 +54,15 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves (ChessPosition startPosition) {
+        // Save the current state of the board
+        ChessBoard originalBoard = getBoard().copy();
+
         // Get the valid moves for the piece at the start position
         ChessPiece piece = getBoard().getPiece(startPosition);
 
+        // Return an empty collection if no piece at position or not the piece's turn
         if (piece == null || piece.getTeamColor() != getTeamTurn()) {
-            return Collections.emptySet(); // Return an empty collection if no piece at position or not the piece's turn
+            return null;
         }
 
         Collection<ChessMove> potentialMoves = piece.pieceMoves(getBoard(), startPosition);
@@ -70,22 +71,24 @@ public class ChessGame {
         Collection<ChessMove> legalMoves = new ArrayList<>();
 
         for (ChessMove move : potentialMoves) {
-            // Simulate the move on a temporary board to check if it's legal.
-            ChessBoard tempBoard = getBoard().copy();
+            // Make move and check if it's legal
             ChessPosition start = move.getStartPosition();
             ChessPosition end = move.getEndPosition();
 
-            ChessPiece movingPiece = tempBoard.getPiece(start);
-            tempBoard.addPiece(end, movingPiece);
-            tempBoard.addPiece(start, null);
+            getBoard().addPiece(end, piece);
+            getBoard().addPiece(start, null);
 
             // Check if piece is left in check after the move
             if (!isInCheck(piece.getTeamColor())) {
                 legalMoves.add(move);
             }
 
-            // Add handling for special moves (e.g., pawn promotion, castling) if necessary.
         }
+
+        // Add handling for special moves (e.g., pawn promotion, castling) if necessary.
+
+        // Restore the board to its original state
+        setBoard(originalBoard);
 
         return legalMoves;
     }
@@ -211,8 +214,6 @@ public class ChessGame {
             }
         }
 
-        // The king should always be on the board, so this should not happen
-        // throw new IllegalStateException("King not found on the board.");
         return null;
     }
 
@@ -234,4 +235,21 @@ public class ChessGame {
         return board;
     }
 
+    @Override
+    public boolean equals (Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ChessGame chessGame = (ChessGame) o;
+
+        if (!Objects.equals(board, chessGame.board)) return false;
+        return teamTurn == chessGame.teamTurn;
+    }
+
+    @Override
+    public int hashCode () {
+        int result = board != null ? board.hashCode() : 0;
+        result = 31 * result + (teamTurn != null ? teamTurn.hashCode() : 0);
+        return result;
+    }
 }
