@@ -61,17 +61,18 @@ public class ChessGame {
         ChessPiece piece = getBoard().getPiece(startPosition);
 
         // Return an empty collection if no piece at position or not the piece's turn
-        if (piece == null || piece.getTeamColor() != getTeamTurn()) {
+        if (piece == null) {
             return null;
         }
 
         Collection<ChessMove> potentialMoves = piece.pieceMoves(getBoard(), startPosition);
 
         // Filter the valid moves to exclude those that would leave the current team in check
-        Collection<ChessMove> legalMoves = new ArrayList<>();
+        HashSet<ChessMove> legalMoves = new HashSet<>();
 
         for (ChessMove move : potentialMoves) {
             // Make move and check if it's legal
+            ChessPiece originalPieceAtEnd = getBoard().getPiece(move.getEndPosition());
             ChessPosition start = move.getStartPosition();
             ChessPosition end = move.getEndPosition();
 
@@ -82,6 +83,9 @@ public class ChessGame {
             if (!isInCheck(piece.getTeamColor())) {
                 legalMoves.add(move);
             }
+
+            getBoard().addPiece(start, piece);
+            getBoard().addPiece(end, originalPieceAtEnd);
 
         }
 
@@ -100,6 +104,13 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove (ChessMove move) throws InvalidMoveException {
+        //throw new RuntimeException("Not implemented");;
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+
+        if (piece == null || piece.getTeamColor() != teamTurn) {
+            throw new InvalidMoveException("No piece at the start position or not your turn.");
+        }
+
         Collection<ChessMove> legalMoves = validMoves(move.getStartPosition());
 
         if (legalMoves != null && legalMoves.contains(move)) {
