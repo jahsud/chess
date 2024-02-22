@@ -100,8 +100,8 @@ public class ChessGame {
         //throw new RuntimeException("Not implemented");;
         ChessPiece piece = board.getPiece(move.getStartPosition());
 
-        if (piece == null || piece.getTeamColor() != teamTurn) {
-            throw new InvalidMoveException("No piece at the start position or not your turn.");
+        if (piece.getTeamColor() != teamTurn) {
+            throw new InvalidMoveException("This is not your turn.");
         }
 
         Collection<ChessMove> legalMoves = validMoves(move.getStartPosition());
