@@ -1,40 +1,37 @@
 package service;
 
-import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
+import dataAccess.GameDAO;
+import dataAccess.MemoryGameDAO;
 import model.GameData;
 
 import java.util.Collection;
 
 public class GameService {
-    private final DataAccess dataAccess;
+    private final GameDAO gameDAO;
 
-    public GameService (DataAccess dataAccess) throws DataAccessException {
-        this.dataAccess = dataAccess;
+    public GameService (GameDAO gameDAO) throws DataAccessException {
+        this.gameDAO = new MemoryGameDAO();
     }
 
     public void clear () throws DataAccessException {
-        dataAccess.clear();
+        MemoryGameDAO.clear();
     }
 
     public GameData createGame (String gameName) throws DataAccessException {
-        return dataAccess.createGame(gameName);
+        return MemoryGameDAO.createGame(gameName);
     }
 
     public GameData getGame (int gameID) throws DataAccessException {
-        return dataAccess.getGame(gameID);
+        return MemoryGameDAO.getGame(gameID);
     }
 
     public GameData updateGame (int gameID) throws DataAccessException {
-        return dataAccess.updateGame(gameID);
+        return MemoryGameDAO.updateGame(gameID);
     }
 
     public Collection<GameData> listGames () throws DataAccessException {
-        return dataAccess.listGames();
-    }
-
-    public void deleteGame (int gameID) throws DataAccessException {
-        dataAccess.deleteGame(gameID);
+        return MemoryGameDAO.listGames();
     }
 
 }
