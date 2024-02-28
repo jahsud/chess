@@ -15,20 +15,22 @@ import model.UserData;
 import model.GameData;
 import dataAccess.DataAccessException;
 
-
 public class Server {
 
     private final UserService userService;
     private final GameService gameService;
     private final Gson gson = new Gson();
 
-    public Server (MemoryUserDAO userDAO, MemoryGameDAO gameDAO, MemoryAuthDAO authDAO) {
+    public Server () {
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryGameDAO gameDAO = new MemoryGameDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+
         this.userService = new UserService(userDAO, authDAO);
         this.gameService = new GameService(gameDAO);
-
     }
 
-    public void run (int desiredPort) {
+    public int run (int desiredPort) {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
@@ -43,6 +45,7 @@ public class Server {
         Spark.exception(Exception.class, this::handleException);
 
         Spark.awaitInitialization();
+        return Spark.port();
     }
 
     private Object registerUser (Request req, Response res) {

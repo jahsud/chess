@@ -3,6 +3,7 @@ package dataAccess;
 import model.AuthData;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO {
     private final HashMap<String, AuthData> authTokens = new HashMap<>();
@@ -11,9 +12,10 @@ public class MemoryAuthDAO implements AuthDAO {
         authTokens.clear();
     }
 
-    public AuthData createAuth (String authToken, String username) throws DataAccessException {
+    public AuthData createAuth (String username) throws DataAccessException {
+        String authToken = UUID.randomUUID().toString(); // Ensures uniqueness
         if (authTokens.containsKey(authToken)) {
-            throw new DataAccessException("Auth token already exists");
+            throw new DataAccessException("Token generation failed. Please try again.");
         }
         AuthData newAuth = new AuthData(authToken, username);
         authTokens.put(authToken, newAuth);
