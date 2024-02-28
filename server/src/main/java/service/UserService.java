@@ -15,6 +15,11 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
+    public void clear () throws DataAccessException {
+        userDAO.clear();
+        authDAO.clear();
+    }
+
     public AuthData register (UserData userData) throws DataAccessException {
         if (userDAO.getUser(userData.username()) != null) {
             throw new DataAccessException("Username already exists");

@@ -9,7 +9,7 @@ import java.util.Collection;
 public class GameService {
     private final MemoryGameDAO gameDAO;
 
-    public GameService (MemoryGameDAO gameDAO) throws DataAccessException {
+    public GameService (MemoryGameDAO gameDAO) {
         this.gameDAO = gameDAO;
     }
 
