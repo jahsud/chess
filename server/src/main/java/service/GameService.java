@@ -1,10 +1,9 @@
 package service;
 
-import dataAccess.DataAccessException;
+import dataAccess.exceptions.DataAccessException;
 import dataAccess.MemoryGameDAO;
-import model.GameData;
-
-import java.util.Collection;
+import request.ListGamesRequest;
+import result.CreateGameResult;
 
 public class GameService {
     private final MemoryGameDAO gameDAO;
@@ -17,20 +16,16 @@ public class GameService {
         gameDAO.clear();
     }
 
-    public GameData createGame (String gameName) throws DataAccessException {
-        return gameDAO.createGame(gameName);
+    public ListGamesRequest listGames (String listGamesRequest) throws DataAccessException {
+
     }
 
-    public GameData getGame (int gameID) throws DataAccessException {
-        return gameDAO.getGame(gameID);
+    public CreateGameResult createGame (String gameName) throws DataAccessException {
     }
 
-    public GameData updateGame (int gameID, String gameName) throws DataAccessException {
-        return gameDAO.updateGame(gameID, gameName);
+    public void joinGame (int gameID, String gameName) throws DataAccessException {
+
     }
 
-    public Collection<GameData> listGames () throws DataAccessException {
-        return gameDAO.listGames();
-    }
 
 }

@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.*;
+import dataAccess.exceptions.*;
 import request.*;
 import result.*;
 import spark.*;
@@ -32,13 +33,13 @@ public class Server {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
-        Spark.post("/user", this::registerUser);
-        Spark.post("/session", this::loginUser);
-        Spark.delete("/session", this::logoutUser);
+        Spark.post("/user", this::register);
+        Spark.post("/session", this::login);
+        Spark.delete("/session", this::logout);
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
-        Spark.delete("/clear", this::clearData);
+        Spark.delete("/clear", this::clear);
 
         Spark.exception(Exception.class, this::handleException);
 
@@ -46,10 +47,10 @@ public class Server {
         return Spark.port();
     }
 
-    private Object registerUser (Request req, Response res) {
-        RegisterRequest userData = gson.fromJson(req.body(), RegisterRequest.class);
+    private Object register (Request req, Response res) {
+        RegisterRequest registerRequest = gson.fromJson(req.body(), RegisterRequest.class);
         try {
-            RegisterResult authData = userService.register(userData);
+            RegisterResult authData = userService.register(registerRequest);
             res.status(200);
             return gson.toJson(authData);
         } catch (BadRequestException e) {
@@ -64,34 +65,46 @@ public class Server {
         }
     }
 
-    private Object loginUser (Request req, Response res) {
-        LoginRequest userData = gson.fromJson(req.body(), LoginRequest.class);
+    private Object login (Request req, Response res) {
+        LoginRequest loginRequest = gson.fromJson(req.body(), LoginRequest.class);
         try {
-            LoginResult authData = userService.login(userData);
+            LoginResult authData = userService.login(loginRequest);
             res.status(200);
             return gson.toJson(authData);
-        } catch (InvalidRequestException e) {
-            res.status(401); // Unauthorized
+        } catch (BadRequestException e) {
+            res.status(400);
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+        } catch (UnauthorizedException e) {
+            res.status(401);
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+        } catch (DataAccessException e) {
+            res.status(500);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         }
     }
 
-    private Object logoutUser (Request req, Response res) {
+    private Object logout (Request req, Response res) {
         String authToken = req.headers("Authorization");
         try {
-            userService.logout(new UserData(null, null, null));
+            userService.logout(new LogoutRequest(authToken));
             res.status(200);
             return "";
-        } catch (DataAccessException e) {
+        } catch (BadRequestException e) {
+            res.status(400); // Unauthorized
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+        } catch (UnauthorizedException e) {
             res.status(401); // Unauthorized
-            return gson.toJson(Map.of("message", "Logout failed"));
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+        } catch (DataAccessException e) {
+            res.status(500); // Unauthorized
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         }
     }
 
     private Object listGames (Request req, Response res) {
         String authToken = req.headers("Authorization");
         try {
-            var games = gameService.listGames();
+            var games = gameService.listGames(authToken);
             res.status(200);
             res.type("application/json");
             return gson.toJson(Map.of("games", games));
@@ -118,7 +131,7 @@ public class Server {
         String authToken = req.headers("Authorization");
         GameData gameData = gson.fromJson(req.body(), GameData.class);
         try {
-            gameService.updateGame(gameData.gameID(), gameData.gameName());
+            gameService.joinGame(gameData.gameID(), gameData.gameName());
             res.status(200);
             return gson.toJson(Map.of("message", "Game joined successfully"));
         } catch (DataAccessException e) {
@@ -127,13 +140,13 @@ public class Server {
         }
     }
 
-    private Object clearData (Request req, Response res) {
+    private Object clear (Request req, Response res) {
         try {
             // Assuming userService and gameService have clear methods implemented
             userService.clear();
             gameService.clear();
-            res.status(200); // OK
-            return gson.toJson(Map.of("message", "All data cleared successfully"));
+            res.status(200);
+            return "";
         } catch (DataAccessException e) {
             res.status(500); // Internal Server Error
             return gson.toJson(Map.of("message", "Failed to clear data: " + e.getMessage()));

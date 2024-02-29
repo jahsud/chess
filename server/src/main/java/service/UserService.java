@@ -1,6 +1,10 @@
 package service;
 
 import dataAccess.*;
+import dataAccess.exceptions.AlreadyTakenException;
+import dataAccess.exceptions.BadRequestException;
+import dataAccess.exceptions.DataAccessException;
+import dataAccess.exceptions.UnauthorizedException;
 import model.AuthData;
 import model.UserData;
 import request.*;
@@ -20,34 +24,37 @@ public class UserService {
         authDAO.clear();
     }
 
-    public RegisterResult register (RegisterRequest userData) throws DataAccessException, BadRequestException, AlreadyTakenException {
-        if (userData.username() == null || userData.password() == null || userData.email() == null) {
+    public RegisterResult register (RegisterRequest registerRequest) throws DataAccessException, BadRequestException, AlreadyTakenException {
+        if (registerRequest.username() == null || registerRequest.password() == null || registerRequest.email() == null) {
             throw new BadRequestException("Missing fields");
         }
-        if (userDAO.getUser(userData.username()) != null) {
+        if (userDAO.getUser(registerRequest.username()) != null) {
             throw new AlreadyTakenException("Username already exists");
         }
-        UserData newUser = userDAO.createUser(userData.username(), userData.password(), userData.email());
+        UserData newUser = userDAO.createUser(registerRequest.username(), registerRequest.password(), registerRequest.email());
         AuthData newAuth = authDAO.createAuth(newUser.username());
         return new RegisterResult(newUser.username(), newAuth.authToken(), null);
     }
 
-    public LoginResult login (LoginRequest userData) throws UnauthorizedException, DataAccessException {
-        UserData existingUser = userDAO.getUser(userData.username());
+    public LoginResult login (LoginRequest loginRequest) throws UnauthorizedException, DataAccessException, BadRequestException {
+        UserData existingUser = userDAO.getUser(loginRequest.username());
         if (existingUser == null) {
-            throw new UnauthorizedException("User not found");
+            throw new BadRequestException("User not found");
         }
-        if (!existingUser.password().equals(userData.password())) {
+        if (!existingUser.password().equals(loginRequest.password())) {
             throw new UnauthorizedException("Invalid password");
         }
         AuthData newAuth = authDAO.createAuth(existingUser.username());
         return new LoginResult(existingUser.username(), newAuth.authToken(), null);
     }
 
-    public void logout (UserData userData) throws DataAccessException {
-        AuthData auth = authDAO.getAuth(userData.username());
+    public void logout (LogoutRequest logoutRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
+        AuthData auth = authDAO.getAuth(logoutRequest.authToken());
         if (auth == null) {
-            throw new DataAccessException("User not logged in");
+            throw new BadRequestException("User not logged in");
+        }
+        if (!auth.authToken().equals(logoutRequest.authToken())) {
+            throw new UnauthorizedException("Invalid auth token");
         }
         authDAO.deleteAuth(auth.authToken());
     }
