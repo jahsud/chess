@@ -1,4 +1,8 @@
 package result;
 
-public record ListGamesResult(String[] games, String message) {
+import model.GameData;
+
+import java.util.Collection;
+
+public record ListGamesResult(Collection<GameData> games, String message) {
 }

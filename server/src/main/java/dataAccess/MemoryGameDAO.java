@@ -15,6 +15,10 @@ public class MemoryGameDAO implements GameDAO {
         nextGameID = 1;
     }
 
+    public Collection<GameData> listGames () {
+        return games.values();
+    }
+
     public GameData createGame (String gameName) {
         int gameID = nextGameID++;
         GameData newGame = new GameData(gameID, null, null, gameName, null);
@@ -35,9 +39,5 @@ public class MemoryGameDAO implements GameDAO {
         games.put(gameID, updatedGameData);
         return updatedGameData;
     }
-
-    public Collection<GameData> listGames () {
-        return games.values();
-    }
-
+    
 }

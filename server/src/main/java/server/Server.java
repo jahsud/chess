@@ -26,7 +26,7 @@ public class Server {
         MemoryAuthDAO authDAO = new MemoryAuthDAO();
 
         this.userService = new UserService(userDAO, authDAO);
-        this.gameService = new GameService(gameDAO);
+        this.gameService = new GameService(gameDAO, authDAO);
     }
 
     public int run (int desiredPort) {
@@ -104,13 +104,19 @@ public class Server {
     private Object listGames (Request req, Response res) {
         String authToken = req.headers("Authorization");
         try {
-            var games = gameService.listGames(authToken);
+            var games = gameService.listGames(new ListGamesRequest(authToken));
             res.status(200);
             res.type("application/json");
             return gson.toJson(Map.of("games", games));
-        } catch (DataAccessException e) {
+        } catch (BadRequestException e) {
+            res.status(400);
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+        } catch (UnauthorizedException e) {
             res.status(401);
-            return gson.toJson(Map.of("message", "Unauthorized"));
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+        } catch (DataAccessException e) {
+            res.status(500);
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         }
     }
 
@@ -118,12 +124,18 @@ public class Server {
         String authToken = req.headers("Authorization");
         try {
             GameData gameData = gson.fromJson(req.body(), GameData.class);
-            var createdGame = gameService.createGame(gameData.gameName());
+            var createdGame = gameService.createGame(new CreateGameRequest(authToken, gameData.gameName()));
             res.status(200);
             return gson.toJson(createdGame);
+        } catch (BadRequestException e) {
+            res.status(400);
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+        } catch (UnauthorizedException e) {
+            res.status(401);
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         } catch (DataAccessException e) {
-            res.status(400); // Bad Request
-            return gson.toJson(Map.of("message", e.getMessage()));
+            res.status(500); // Bad Request
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         }
     }
 
@@ -131,18 +143,26 @@ public class Server {
         String authToken = req.headers("Authorization");
         GameData gameData = gson.fromJson(req.body(), GameData.class);
         try {
-            gameService.joinGame(gameData.gameID(), gameData.gameName());
+            gameService.joinGame(new JoinGameRequest(authToken, gameData.game().getTeamTurn(), gameData.gameID()));
             res.status(200);
-            return gson.toJson(Map.of("message", "Game joined successfully"));
-        } catch (DataAccessException e) {
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+        } catch (BadRequestException e) {
             res.status(400); // Bad Request
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+        } catch (UnauthorizedException e) {
+            res.status(401); // Bad Request
+            return gson.toJson(Map.of("message", "Joining game failed"));
+        } catch (AlreadyTakenException e) {
+            res.status(403); // Bad Request
+            return gson.toJson(Map.of("message", "Joining game failed"));
+        } catch (DataAccessException e) {
+            res.status(500); // Bad Request
             return gson.toJson(Map.of("message", "Joining game failed"));
         }
     }
 
     private Object clear (Request req, Response res) {
         try {
-            // Assuming userService and gameService have clear methods implemented
             userService.clear();
             gameService.clear();
             res.status(200);
