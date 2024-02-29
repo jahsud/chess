@@ -1,20 +1,17 @@
 package server;
 
 import com.google.gson.Gson;
-import result.RegisterResult;
+import dataAccess.*;
+import request.*;
+import result.*;
 import spark.*;
 
 import java.util.Map;
 
 import service.GameService;
 import service.UserService;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryUserDAO;
-import dataAccess.MemoryGameDAO;
-import model.AuthData;
 import model.UserData;
 import model.GameData;
-import dataAccess.DataAccessException;
 
 public class Server {
 
@@ -50,7 +47,7 @@ public class Server {
     }
 
     private Object registerUser (Request req, Response res) {
-        UserData userData = gson.fromJson(req.body(), UserData.class);
+        RegisterRequest userData = gson.fromJson(req.body(), RegisterRequest.class);
         try {
             RegisterResult authData = userService.register(userData);
             res.status(200);
@@ -68,14 +65,14 @@ public class Server {
     }
 
     private Object loginUser (Request req, Response res) {
-        UserData userData = gson.fromJson(req.body(), UserData.class);
+        LoginRequest userData = gson.fromJson(req.body(), LoginRequest.class);
         try {
-            AuthData authData = userService.login(userData);
+            LoginResult authData = userService.login(userData);
             res.status(200);
             return gson.toJson(authData);
-        } catch (DataAccessException e) {
+        } catch (InvalidRequestException e) {
             res.status(401); // Unauthorized
-            return gson.toJson(Map.of("message", "Invalid credentials"));
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         }
     }
 

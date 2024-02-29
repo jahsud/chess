@@ -1,13 +1,10 @@
 package service;
 
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryUserDAO;
-import dataAccess.DataAccessException;
+import dataAccess.*;
 import model.AuthData;
 import model.UserData;
-import result.RegisterResult;
-import server.AlreadyTakenException;
-import server.BadRequestException;
+import request.*;
+import result.*;
 
 public class UserService {
     private final MemoryUserDAO userDAO;
@@ -23,7 +20,7 @@ public class UserService {
         authDAO.clear();
     }
 
-    public RegisterResult register (UserData userData) throws DataAccessException, BadRequestException, AlreadyTakenException {
+    public RegisterResult register (RegisterRequest userData) throws DataAccessException, BadRequestException, AlreadyTakenException {
         if (userData.username() == null || userData.password() == null || userData.email() == null) {
             throw new BadRequestException("Missing fields");
         }
@@ -35,12 +32,16 @@ public class UserService {
         return new RegisterResult(newUser.username(), newAuth.authToken(), null);
     }
 
-    public AuthData login (UserData userData) throws DataAccessException {
+    public LoginResult login (LoginRequest userData) throws UnauthorizedException, DataAccessException {
         UserData existingUser = userDAO.getUser(userData.username());
-        if (!existingUser.password().equals(userData.password())) {
-            throw new DataAccessException("Invalid password");
+        if (existingUser == null) {
+            throw new UnauthorizedException("User not found");
         }
-        return new AuthData(existingUser.username(), existingUser.email());
+        if (!existingUser.password().equals(userData.password())) {
+            throw new UnauthorizedException("Invalid password");
+        }
+        AuthData newAuth = authDAO.createAuth(existingUser.username());
+        return new LoginResult(existingUser.username(), newAuth.authToken(), null);
     }
 
     public void logout (UserData userData) throws DataAccessException {

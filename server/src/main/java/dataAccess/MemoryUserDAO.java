@@ -20,12 +20,8 @@ public class MemoryUserDAO implements UserDAO {
         return newUser;
     }
 
-    public UserData getUser (String username) throws DataAccessException {
-        UserData user = users.get(username);
-        if (user == null) {
-            throw new DataAccessException("User not found");
-        }
-        return user;
+    public UserData getUser (String username) {
+        return users.get(username);
     }
 }
 
