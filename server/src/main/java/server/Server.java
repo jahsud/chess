@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import result.RegisterResult;
 import spark.*;
 
 import java.util.Map;
@@ -51,12 +52,18 @@ public class Server {
     private Object registerUser (Request req, Response res) {
         UserData userData = gson.fromJson(req.body(), UserData.class);
         try {
-            AuthData authData = userService.register(userData);
+            RegisterResult authData = userService.register(userData);
             res.status(200);
             return gson.toJson(authData);
         } catch (DataAccessException e) {
+            res.status(500);
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+        } catch (BadRequestException e) {
             res.status(400);
-            return gson.toJson(Map.of("message", e.getMessage()));
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+        } catch (AlreadyTakenException e) {
+            res.status(403);
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         }
     }
 

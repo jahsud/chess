@@ -5,6 +5,9 @@ import dataAccess.MemoryUserDAO;
 import dataAccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
+import result.RegisterResult;
+import server.AlreadyTakenException;
+import server.BadRequestException;
 
 public class UserService {
     private final MemoryUserDAO userDAO;
@@ -20,12 +23,16 @@ public class UserService {
         authDAO.clear();
     }
 
-    public AuthData register (UserData userData) throws DataAccessException {
+    public RegisterResult register (UserData userData) throws DataAccessException, BadRequestException, AlreadyTakenException {
+        if (userData.username() == null || userData.password() == null || userData.email() == null) {
+            throw new BadRequestException("Missing fields");
+        }
         if (userDAO.getUser(userData.username()) != null) {
-            throw new DataAccessException("Username already exists");
+            throw new AlreadyTakenException("Username already exists");
         }
         UserData newUser = userDAO.createUser(userData.username(), userData.password(), userData.email());
-        return new AuthData(newUser.username(), newUser.email());
+        AuthData newAuth = authDAO.createAuth(newUser.username());
+        return new RegisterResult(newUser.username(), newAuth.authToken(), null);
     }
 
     public AuthData login (UserData userData) throws DataAccessException {
