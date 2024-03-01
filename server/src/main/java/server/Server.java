@@ -131,7 +131,7 @@ public class Server {
             res.status(401);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         } catch (DataAccessException e) {
-            res.status(500); // Bad Request
+            res.status(500);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         }
     }

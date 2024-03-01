@@ -24,11 +24,10 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     public AuthData getAuth (String authToken) throws DataAccessException {
-        AuthData auth = authTokens.get(authToken);
-        if (auth == null) {
-            throw new DataAccessException("Auth token not found - (getAuth)");
+        if (authToken == null || authToken.isEmpty()) {
+            throw new DataAccessException("Auth token not provided");
         }
-        return auth;
+        return authTokens.get(authToken);
     }
 
     public void deleteAuth (String authToken) throws DataAccessException {

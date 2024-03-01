@@ -30,7 +30,7 @@ public class GameService {
 
     public ListGamesResult listGames (ListGamesRequest listGamesRequest) throws DataAccessException, UnauthorizedException {
         AuthData auth = authDAO.getAuth(listGamesRequest.authToken());
-        if (!auth.authToken().equals(listGamesRequest.authToken())) {
+        if (auth == null || !auth.authToken().equals(listGamesRequest.authToken())) {
             throw new UnauthorizedException("Invalid auth token");
         }
         return new ListGamesResult(gameDAO.listGames(), null);
@@ -38,10 +38,10 @@ public class GameService {
 
     public CreateGameResult createGame (CreateGameRequest createGameRequest) throws DataAccessException, BadRequestException, UnauthorizedException {
         AuthData auth = authDAO.getAuth(createGameRequest.authToken());
-        if (createGameRequest.gameName() == null) {
+        if (createGameRequest.gameName() == null || createGameRequest.authToken() == null) {
             throw new BadRequestException("Missing fields");
         }
-        if (!auth.authToken().equals(createGameRequest.authToken())) {
+        if (auth == null || !auth.authToken().equals(createGameRequest.authToken())) {
             throw new UnauthorizedException("Invalid auth token");
         }
         return new CreateGameResult(gameDAO.createGame(createGameRequest.authToken()).gameID(), null);

@@ -1,5 +1,6 @@
 package passoffTests.serviceTests;
 
+import chess.ChessGame;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
 import dataAccess.MemoryUserDAO;
@@ -7,11 +8,10 @@ import dataAccess.exceptions.AlreadyTakenException;
 import dataAccess.exceptions.BadRequestException;
 import dataAccess.exceptions.DataAccessException;
 import dataAccess.exceptions.UnauthorizedException;
-import model.AuthData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.*;
-import result.LoginResult;
+import result.CreateGameResult;
 import result.RegisterResult;
 import service.GameService;
 import service.UserService;
@@ -50,7 +50,7 @@ public class GameTests {
     @Test
     void listGamesNegativeTest () throws DataAccessException, BadRequestException, UnauthorizedException, AlreadyTakenException {
         ListGamesRequest request = new ListGamesRequest("badToken");
-        assertThrows(DataAccessException.class, () -> gameService.listGames(request));
+        assertThrows(UnauthorizedException.class, () -> gameService.listGames(request));
     }
 
     @Test
@@ -63,8 +63,30 @@ public class GameTests {
 
     @Test
     void createGameNegativeTest () throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
+        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
+        userService.register(registerRequest);
         CreateGameRequest request = new CreateGameRequest("badToken", "gameName");
         assertThrows(UnauthorizedException.class, () -> gameService.createGame(request));
+    }
+
+    @Test
+    void joinGamePositiveTest () throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
+        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
+        RegisterResult user = userService.register(registerRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest(user.authToken(), "gameName");
+        CreateGameResult game = gameService.createGame(createGameRequest);
+        JoinGameRequest joinGameRequest = new JoinGameRequest(user.authToken(), ChessGame.TeamColor.WHITE, game.gameID());
+        gameService.joinGame(joinGameRequest);
+    }
+
+    @Test
+    void joinGameNegativeTest () throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
+        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
+        RegisterResult user = userService.register(registerRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest(user.authToken(), "gameName");
+        CreateGameResult game = gameService.createGame(createGameRequest);
+        JoinGameRequest joinGameRequest = new JoinGameRequest("badToken", ChessGame.TeamColor.WHITE, game.gameID());
+        assertThrows(UnauthorizedException.class, () -> gameService.joinGame(joinGameRequest));
     }
 
 }
