@@ -56,15 +56,15 @@ public class GameService {
         if (auth == null || !auth.authToken().equals(joinGameRequest.authToken())) {
             throw new UnauthorizedException("Invalid auth token");
         }
-        if (joinGameRequest.color() != null) {
-            if ((joinGameRequest.color() == ChessGame.TeamColor.WHITE && game.whiteUsername() != null) ||
-                    (joinGameRequest.color() == ChessGame.TeamColor.BLACK && game.blackUsername() != null)) {
+        if (joinGameRequest.playerColor() != null) {
+            if ((joinGameRequest.playerColor().equals("WHITE") && game.whiteUsername() != null) ||
+                    (joinGameRequest.playerColor().equals("BLACK") && game.blackUsername() != null)) {
                 throw new AlreadyTakenException("Color is already taken");
             }
-            if (joinGameRequest.color() == ChessGame.TeamColor.WHITE) {
-                gameDAO.updateGame(joinGameRequest.gameID(), String.valueOf(joinGameRequest.color()), game.blackUsername());
+            if (joinGameRequest.playerColor().equals("WHITE")) {
+                gameDAO.updateGame(joinGameRequest.gameID(), String.valueOf(joinGameRequest.playerColor()), game.blackUsername());
             } else {
-                gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername(), String.valueOf(joinGameRequest.color()));
+                gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername(), String.valueOf(joinGameRequest.playerColor()));
             }
         } else {
             // Add user as an observer

@@ -71,9 +71,6 @@ public class Server {
             LoginResult authData = userService.login(loginRequest);
             res.status(200);
             return gson.toJson(authData);
-        } catch (BadRequestException e) {
-            res.status(400);
-            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         } catch (UnauthorizedException e) {
             res.status(401);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
@@ -140,7 +137,8 @@ public class Server {
         String authToken = req.headers("Authorization");
         GameData gameData = gson.fromJson(req.body(), GameData.class);
         try {
-            gameService.joinGame(new JoinGameRequest(authToken, gameData.game().getTeamTurn(), gameData.gameID()));
+            String playerColor = gameData.whiteUsername() != null ? "WHITE" : "BLACK";
+            gameService.joinGame(new JoinGameRequest(authToken, playerColor, gameData.gameID()));
             res.status(200);
             return "";
         } catch (BadRequestException e) {

@@ -36,7 +36,7 @@ public class UserTests {
     void clearUserTest () throws DataAccessException, BadRequestException, AlreadyTakenException {
         userService.register(new RegisterRequest("user1", "password", "email"));
         userService.clear();
-        assertThrows(BadRequestException.class, () -> userService.login(new LoginRequest("user1", "password")));
+        assertThrows(UnauthorizedException.class, () -> userService.login(new LoginRequest("user1", "password")));
     }
 
     @Test

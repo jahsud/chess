@@ -36,12 +36,9 @@ public class UserService {
         return new RegisterResult(newUser.username(), newAuth.authToken(), null);
     }
 
-    public LoginResult login (LoginRequest loginRequest) throws UnauthorizedException, DataAccessException, BadRequestException {
+    public LoginResult login (LoginRequest loginRequest) throws UnauthorizedException, DataAccessException {
         UserData existingUser = userDAO.getUser(loginRequest.username());
-        if (existingUser == null) {
-            throw new BadRequestException("User not found");
-        }
-        if (!existingUser.password().equals(loginRequest.password())) {
+        if (existingUser == null || !existingUser.password().equals(loginRequest.password())) {
             throw new UnauthorizedException("Invalid password");
         }
         AuthData newAuth = authDAO.createAuth(existingUser.username());

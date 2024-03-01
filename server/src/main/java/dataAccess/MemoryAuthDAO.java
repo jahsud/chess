@@ -15,9 +15,6 @@ public class MemoryAuthDAO implements AuthDAO {
 
     public AuthData createAuth (String username) throws DataAccessException {
         String authToken = UUID.randomUUID().toString(); // Ensures uniqueness
-        if (authTokens.containsKey(authToken)) {
-            throw new DataAccessException("Token generation failed. Please try again.");
-        }
         AuthData newAuth = new AuthData(authToken, username);
         authTokens.put(authToken, newAuth);
         return newAuth;
