@@ -39,7 +39,7 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
-        Spark.delete("/clear", this::clear);
+        Spark.delete("/db", this::clear);
 
         Spark.exception(Exception.class, this::handleException);
 
@@ -108,9 +108,6 @@ public class Server {
             res.status(200);
             res.type("application/json");
             return gson.toJson(Map.of("games", games));
-        } catch (BadRequestException e) {
-            res.status(400);
-            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         } catch (UnauthorizedException e) {
             res.status(401);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));

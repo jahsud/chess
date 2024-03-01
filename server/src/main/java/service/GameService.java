@@ -28,11 +28,8 @@ public class GameService {
         gameDAO.clear();
     }
 
-    public ListGamesResult listGames (ListGamesRequest listGamesRequest) throws DataAccessException, BadRequestException, UnauthorizedException {
+    public ListGamesResult listGames (ListGamesRequest listGamesRequest) throws DataAccessException, UnauthorizedException {
         AuthData auth = authDAO.getAuth(listGamesRequest.authToken());
-        if (auth == null) {
-            throw new BadRequestException("User not logged in");
-        }
         if (!auth.authToken().equals(listGamesRequest.authToken())) {
             throw new UnauthorizedException("Invalid auth token");
         }

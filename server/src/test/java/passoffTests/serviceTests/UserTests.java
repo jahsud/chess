@@ -20,10 +20,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 public class UserTests {
-    static final UserService userService = new UserService(new MemoryUserDAO(), new MemoryAuthDAO());
+    private UserService userService;
 
     @BeforeEach
-    void clear () throws DataAccessException {
+    void setup () throws DataAccessException {
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+
+        this.userService = new UserService(userDAO, authDAO);
+
         userService.clear();
     }
 
