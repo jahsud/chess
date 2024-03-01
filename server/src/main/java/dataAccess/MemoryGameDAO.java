@@ -29,15 +29,14 @@ public class MemoryGameDAO implements GameDAO {
     public GameData getGame (int gameID) {
         return games.get(gameID);
     }
-
-    public GameData updateGame (int gameID, String newGameName) throws DataAccessException {
+    
+    public void updateGame (int gameID, String whiteUsername, String blackUsername) throws DataAccessException {
         if (!games.containsKey(gameID)) {
             throw new DataAccessException("Game not found");
         }
         GameData gameData = games.get(gameID);
-        GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), newGameName, gameData.game());
+        GameData updatedGameData = new GameData(gameData.gameID(), whiteUsername, blackUsername, gameData.gameName(), gameData.game());
         games.put(gameID, updatedGameData);
-        return updatedGameData;
     }
-    
+
 }

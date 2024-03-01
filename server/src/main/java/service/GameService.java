@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.exceptions.AlreadyTakenException;
 import dataAccess.exceptions.BadRequestException;
@@ -52,22 +53,25 @@ public class GameService {
     public void joinGame (JoinGameRequest joinGameRequest) throws DataAccessException, BadRequestException, UnauthorizedException, AlreadyTakenException {
         AuthData auth = authDAO.getAuth(joinGameRequest.authToken());
         GameData game = gameDAO.getGame(joinGameRequest.gameID());
-        if (gameDAO.getGame(joinGameRequest.gameID()) == null) {
+        if (game == null) {
             throw new BadRequestException("Game not found");
         }
-        if (!auth.authToken().equals(joinGameRequest.authToken())) {
+        if (auth == null || !auth.authToken().equals(joinGameRequest.authToken())) {
             throw new UnauthorizedException("Invalid auth token");
         }
-        if (game.blackUsername() != null || game.whiteUsername() != null{
-            throw new AlreadyTakenException("Game is full");
-        }
-        if (game.whiteUsername() == null) {
-            gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername());
-        }
-        else if (game.blackUsername() == null)
-            gameDAO.updateGame(joinGameRequest.gameID(), game.blackUsername());
+        if (joinGameRequest.color() != null) {
+            if ((joinGameRequest.color() == ChessGame.TeamColor.WHITE && game.whiteUsername() != null) ||
+                    (joinGameRequest.color() == ChessGame.TeamColor.BLACK && game.blackUsername() != null)) {
+                throw new AlreadyTakenException("Color is already taken");
+            }
+            if (joinGameRequest.color() == ChessGame.TeamColor.WHITE) {
+                gameDAO.updateGame(joinGameRequest.gameID(), String.valueOf(joinGameRequest.color()), game.blackUsername());
+            } else {
+                gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername(), String.valueOf(joinGameRequest.color()));
+            }
         } else {
-
+            // Add user as an observer
+            gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername(), game.blackUsername());
         }
     }
 

@@ -145,19 +145,19 @@ public class Server {
         try {
             gameService.joinGame(new JoinGameRequest(authToken, gameData.game().getTeamTurn(), gameData.gameID()));
             res.status(200);
-            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+            return "";
         } catch (BadRequestException e) {
             res.status(400); // Bad Request
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         } catch (UnauthorizedException e) {
             res.status(401); // Bad Request
-            return gson.toJson(Map.of("message", "Joining game failed"));
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         } catch (AlreadyTakenException e) {
             res.status(403); // Bad Request
-            return gson.toJson(Map.of("message", "Joining game failed"));
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         } catch (DataAccessException e) {
             res.status(500); // Bad Request
-            return gson.toJson(Map.of("message", "Joining game failed"));
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         }
     }
 
