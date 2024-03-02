@@ -44,7 +44,7 @@ public class GameService {
         if (auth == null || !auth.authToken().equals(createGameRequest.authToken())) {
             throw new UnauthorizedException("Invalid auth token");
         }
-        return new CreateGameResult(gameDAO.createGame(createGameRequest.authToken()).gameID(), null);
+        return new CreateGameResult(gameDAO.createGame(createGameRequest.gameName()).gameID(), null);
     }
 
     public void joinGame (JoinGameRequest joinGameRequest) throws DataAccessException, BadRequestException, UnauthorizedException, AlreadyTakenException {
@@ -57,14 +57,14 @@ public class GameService {
             throw new UnauthorizedException("Invalid auth token");
         }
         if (joinGameRequest.playerColor() != null) {
-            if ((joinGameRequest.playerColor().equals("WHITE") && game.whiteUsername() != null) ||
-                    (joinGameRequest.playerColor().equals("BLACK") && game.blackUsername() != null)) {
+            if ((joinGameRequest.playerColor().equals(ChessGame.TeamColor.WHITE) && game.whiteUsername() != null) ||
+                    (joinGameRequest.playerColor().equals(ChessGame.TeamColor.BLACK) && game.blackUsername() != null)) {
                 throw new AlreadyTakenException("Color is already taken");
             }
-            if (joinGameRequest.playerColor().equals("WHITE")) {
-                gameDAO.updateGame(joinGameRequest.gameID(), String.valueOf(joinGameRequest.playerColor()), game.blackUsername());
+            if (joinGameRequest.playerColor().equals(ChessGame.TeamColor.WHITE)) {
+                gameDAO.updateGame(joinGameRequest.gameID(), auth.username(), game.blackUsername());
             } else {
-                gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername(), String.valueOf(joinGameRequest.playerColor()));
+                gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername(), auth.username());
             }
         } else {
             // Add user as an observer

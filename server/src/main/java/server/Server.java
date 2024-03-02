@@ -1,8 +1,10 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataAccess.*;
 import dataAccess.exceptions.*;
+import model.JoinGameData;
 import request.*;
 import result.*;
 import spark.*;
@@ -104,7 +106,7 @@ public class Server {
             var games = gameService.listGames(new ListGamesRequest(authToken));
             res.status(200);
             res.type("application/json");
-            return gson.toJson(Map.of("games", games));
+            return gson.toJson(Map.of("games", games.games()));
         } catch (UnauthorizedException e) {
             res.status(401);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
@@ -135,10 +137,10 @@ public class Server {
 
     private Object joinGame (Request req, Response res) {
         String authToken = req.headers("Authorization");
-        GameData gameData = gson.fromJson(req.body(), GameData.class);
+        JoinGameData joinData = gson.fromJson(req.body(), JoinGameData.class);
         try {
-            String playerColor = gameData.whiteUsername() != null ? "WHITE" : "BLACK";
-            gameService.joinGame(new JoinGameRequest(authToken, playerColor, gameData.gameID()));
+            ChessGame.TeamColor playerColor = joinData.color();
+            gameService.joinGame(new JoinGameRequest(authToken, playerColor, joinData.gameID()));
             res.status(200);
             return "";
         } catch (BadRequestException e) {
