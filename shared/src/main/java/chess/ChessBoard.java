@@ -64,24 +64,6 @@ public class ChessBoard {
         }
     }
 
-    public ChessBoard copy () {
-        ChessBoard copiedBoard = new ChessBoard();
-
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPosition position = new ChessPosition(row, col);
-                ChessPiece originalPiece = getPiece(position);
-
-                if (originalPiece != null) {
-                    ChessPiece copiedPiece = new ChessPiece(originalPiece.getTeamColor(), originalPiece.getPieceType());
-                    copiedBoard.addPiece(position, copiedPiece);
-                }
-            }
-        }
-
-        return copiedBoard;
-    }
-
     @Override
     public boolean equals (Object o) {
         if (this == o) return true;

@@ -1,4 +1,4 @@
-package passoffTests.serviceTests;
+package serviceTests;
 
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryUserDAO;
@@ -89,7 +89,7 @@ public class UserTests {
         LoginResult user = userService.login(loginRequest);
         AuthData auth = new AuthData(user.authToken(), user.username());
         userService.logout(new LogoutRequest(auth.authToken()));
-        assertThrows(BadRequestException.class, () -> userService.logout(new LogoutRequest(auth.authToken())));
+        assertThrows(UnauthorizedException.class, () -> userService.logout(new LogoutRequest(auth.authToken())));
     }
 
 }

@@ -68,21 +68,16 @@ public class ChessGame {
         HashSet<ChessMove> legalMoves = new HashSet<>();
 
         for (ChessMove move : potentialMoves) {
-            // Make move and check if it's legal
             ChessPiece originalPieceAtEnd = getBoard().getPiece(move.getEndPosition());
-            ChessPosition start = move.getStartPosition();
-            ChessPosition end = move.getEndPosition();
+            getBoard().addPiece(move.getEndPosition(), piece);
+            getBoard().addPiece(move.getStartPosition(), null);
 
-            getBoard().addPiece(end, piece);
-            getBoard().addPiece(start, null);
-
-            // Check if piece is left in check after the move
             if (!isInCheck(piece.getTeamColor())) {
                 legalMoves.add(move);
             }
 
-            getBoard().addPiece(start, piece);
-            getBoard().addPiece(end, originalPieceAtEnd);
+            getBoard().addPiece(move.getStartPosition(), piece);
+            getBoard().addPiece(move.getEndPosition(), originalPieceAtEnd);
         }
 
         // Add handling for special moves (e.g., pawn promotion, castling) if necessary.

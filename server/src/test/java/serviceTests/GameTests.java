@@ -1,4 +1,4 @@
-package passoffTests.serviceTests;
+package serviceTests;
 
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
@@ -47,7 +47,7 @@ public class GameTests {
     }
 
     @Test
-    void listGamesNegativeTest () throws DataAccessException, BadRequestException, UnauthorizedException, AlreadyTakenException {
+    void listGamesNegativeTest () {
         ListGamesRequest request = new ListGamesRequest("badToken");
         assertThrows(UnauthorizedException.class, () -> gameService.listGames(request));
     }
@@ -61,7 +61,7 @@ public class GameTests {
     }
 
     @Test
-    void createGameNegativeTest () throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
+    void createGameNegativeTest () throws DataAccessException, BadRequestException, AlreadyTakenException {
         RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
         userService.register(registerRequest);
         CreateGameRequest request = new CreateGameRequest("badToken", "gameName");

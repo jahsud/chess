@@ -14,7 +14,10 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     public AuthData createAuth (String username) throws DataAccessException {
-        String authToken = UUID.randomUUID().toString(); // Ensures uniqueness
+        if (username == null || username.isEmpty()) {
+            throw new DataAccessException("Username not provided");
+        }
+        String authToken = UUID.randomUUID().toString();
         AuthData newAuth = new AuthData(authToken, username);
         authTokens.put(authToken, newAuth);
         return newAuth;
