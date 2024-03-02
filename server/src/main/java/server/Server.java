@@ -139,8 +139,7 @@ public class Server {
         String authToken = req.headers("Authorization");
         JoinGameData joinData = gson.fromJson(req.body(), JoinGameData.class);
         try {
-            ChessGame.TeamColor playerColor = joinData.color();
-            gameService.joinGame(new JoinGameRequest(authToken, playerColor, joinData.gameID()));
+            gameService.joinGame(new JoinGameRequest(authToken, joinData.color(), joinData.gameID()));
             res.status(200);
             return "";
         } catch (BadRequestException e) {
