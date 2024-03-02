@@ -80,14 +80,7 @@ public class PieceRules {
                 var atDestination = board.getPiece(destination);
                 if (atDestination == null) {
                     // Check if promotion is available
-                    if ((row == 8 && teamColor == ChessGame.TeamColor.WHITE) || (row == 1 && teamColor == ChessGame.TeamColor.BLACK)) {
-                        allMoves.add(new ChessMove(myPosition, destination, ChessPiece.PieceType.QUEEN));
-                        allMoves.add(new ChessMove(myPosition, destination, ChessPiece.PieceType.BISHOP));
-                        allMoves.add(new ChessMove(myPosition, destination, ChessPiece.PieceType.KNIGHT));
-                        allMoves.add(new ChessMove(myPosition, destination, ChessPiece.PieceType.ROOK));
-                    } else {
-                        allMoves.add(new ChessMove(myPosition, destination, null));
-                    }
+                    isPromotionAvailable(myPosition, teamColor, allMoves, row, destination);
                 } else {
                     break;
                 }
@@ -112,17 +105,21 @@ public class PieceRules {
                 var atDestination = board.getPiece(destination);
                 if (atDestination != null && atDestination.getTeamColor() != teamColor) {
                     // Check if promotion is available
-                    if ((row == 8 && teamColor == ChessGame.TeamColor.WHITE) || (row == 1 && teamColor == ChessGame.TeamColor.BLACK)) {
-                        allMoves.add(new ChessMove(myPosition, destination, ChessPiece.PieceType.QUEEN));
-                        allMoves.add(new ChessMove(myPosition, destination, ChessPiece.PieceType.BISHOP));
-                        allMoves.add(new ChessMove(myPosition, destination, ChessPiece.PieceType.KNIGHT));
-                        allMoves.add(new ChessMove(myPosition, destination, ChessPiece.PieceType.ROOK));
-                    } else {
-                        allMoves.add(new ChessMove(myPosition, destination, null));
-                    }
+                    isPromotionAvailable(myPosition, teamColor, allMoves, row, destination);
                     break;
                 }
             }
+        }
+    }
+
+    private static void isPromotionAvailable (ChessPosition myPosition, ChessGame.TeamColor teamColor, HashSet<ChessMove> allMoves, int row, ChessPosition destination) {
+        if ((row == 8 && teamColor == ChessGame.TeamColor.WHITE) || (row == 1 && teamColor == ChessGame.TeamColor.BLACK)) {
+            allMoves.add(new ChessMove(myPosition, destination, ChessPiece.PieceType.QUEEN));
+            allMoves.add(new ChessMove(myPosition, destination, ChessPiece.PieceType.BISHOP));
+            allMoves.add(new ChessMove(myPosition, destination, ChessPiece.PieceType.KNIGHT));
+            allMoves.add(new ChessMove(myPosition, destination, ChessPiece.PieceType.ROOK));
+        } else {
+            allMoves.add(new ChessMove(myPosition, destination, null));
         }
     }
 
