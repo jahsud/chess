@@ -1,6 +1,5 @@
 package server;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import dataAccess.*;
 import dataAccess.exceptions.*;
@@ -13,7 +12,6 @@ import java.util.Map;
 
 import service.GameService;
 import service.UserService;
-import model.UserData;
 import model.GameData;
 
 public class Server {
@@ -139,7 +137,7 @@ public class Server {
         String authToken = req.headers("Authorization");
         JoinGameData joinData = gson.fromJson(req.body(), JoinGameData.class);
         try {
-            gameService.joinGame(new JoinGameRequest(authToken, joinData.color(), joinData.gameID()));
+            gameService.joinGame(new JoinGameRequest(authToken, joinData.playerColor(), joinData.gameID()));
             res.status(200);
             return "";
         } catch (BadRequestException e) {

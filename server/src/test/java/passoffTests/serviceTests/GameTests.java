@@ -1,6 +1,5 @@
 package passoffTests.serviceTests;
 
-import chess.ChessGame;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
 import dataAccess.MemoryUserDAO;
@@ -75,7 +74,7 @@ public class GameTests {
         RegisterResult user = userService.register(registerRequest);
         CreateGameRequest createGameRequest = new CreateGameRequest(user.authToken(), "gameName");
         CreateGameResult game = gameService.createGame(createGameRequest);
-        JoinGameRequest joinGameRequest = new JoinGameRequest(user.authToken(), ChessGame.TeamColor.WHITE, game.gameID());
+        JoinGameRequest joinGameRequest = new JoinGameRequest(user.authToken(), "WHITE", game.gameID());
         gameService.joinGame(joinGameRequest);
     }
 
@@ -85,7 +84,7 @@ public class GameTests {
         RegisterResult user = userService.register(registerRequest);
         CreateGameRequest createGameRequest = new CreateGameRequest(user.authToken(), "gameName");
         CreateGameResult game = gameService.createGame(createGameRequest);
-        JoinGameRequest joinGameRequest = new JoinGameRequest("badToken", ChessGame.TeamColor.WHITE, game.gameID());
+        JoinGameRequest joinGameRequest = new JoinGameRequest("badToken", "WHITE", game.gameID());
         assertThrows(UnauthorizedException.class, () -> gameService.joinGame(joinGameRequest));
     }
 

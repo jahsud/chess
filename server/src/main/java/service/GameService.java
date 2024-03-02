@@ -1,6 +1,5 @@
 package service;
 
-import chess.ChessGame;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.exceptions.AlreadyTakenException;
 import dataAccess.exceptions.BadRequestException;
@@ -57,11 +56,11 @@ public class GameService {
             throw new UnauthorizedException("Invalid auth token");
         }
         if (joinGameRequest.playerColor() != null) {
-            if ((joinGameRequest.playerColor().equals(ChessGame.TeamColor.WHITE) && game.whiteUsername() != null) ||
-                    (joinGameRequest.playerColor().equals(ChessGame.TeamColor.BLACK) && game.blackUsername() != null)) {
+            if ((joinGameRequest.playerColor().equals("WHITE") && game.whiteUsername() != null) ||
+                    (joinGameRequest.playerColor().equals("BLACK") && game.blackUsername() != null)) {
                 throw new AlreadyTakenException("Color is already taken");
             }
-            if (joinGameRequest.playerColor().equals(ChessGame.TeamColor.WHITE)) {
+            if (joinGameRequest.playerColor().equals("WHITE")) {
                 gameDAO.updateGame(joinGameRequest.gameID(), auth.username(), game.blackUsername());
             } else {
                 gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername(), auth.username());

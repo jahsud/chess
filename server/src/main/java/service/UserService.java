@@ -47,10 +47,10 @@ public class UserService {
 
     public void logout (LogoutRequest logoutRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
         AuthData auth = authDAO.getAuth(logoutRequest.authToken());
-        if (auth == null) {
+        if (logoutRequest.authToken() == null) {
             throw new BadRequestException("User not logged in");
         }
-        if (!auth.authToken().equals(logoutRequest.authToken())) {
+        if (auth == null || !auth.authToken().equals(logoutRequest.authToken())) {
             throw new UnauthorizedException("Invalid auth token");
         }
         authDAO.deleteAuth(auth.authToken());
