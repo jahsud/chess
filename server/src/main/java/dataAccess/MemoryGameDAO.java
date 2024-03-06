@@ -1,6 +1,5 @@
 package dataAccess;
 
-import dataAccess.exceptions.DataAccessException;
 import model.GameData;
 
 import java.util.Collection;
@@ -29,7 +28,7 @@ public class MemoryGameDAO implements GameDAO {
     public GameData getGame (int gameID) {
         return games.get(gameID);
     }
-    
+
     public void updateGame (int gameID, String whiteUsername, String blackUsername) throws DataAccessException {
         if (!games.containsKey(gameID)) {
             throw new DataAccessException("Game not found");

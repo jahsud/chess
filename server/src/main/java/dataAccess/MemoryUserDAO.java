@@ -1,6 +1,5 @@
 package dataAccess;
 
-import dataAccess.exceptions.DataAccessException;
 import model.UserData;
 
 import java.util.HashMap;

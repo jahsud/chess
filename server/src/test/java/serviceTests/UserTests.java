@@ -2,10 +2,10 @@ package serviceTests;
 
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryUserDAO;
-import dataAccess.exceptions.AlreadyTakenException;
-import dataAccess.exceptions.BadRequestException;
-import dataAccess.exceptions.DataAccessException;
-import dataAccess.exceptions.UnauthorizedException;
+import service.AlreadyTakenException;
+import service.BadRequestException;
+import dataAccess.DataAccessException;
+import service.UnauthorizedException;
 import model.AuthData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

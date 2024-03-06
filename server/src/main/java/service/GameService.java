@@ -1,11 +1,8 @@
 package service;
 
 import dataAccess.MemoryAuthDAO;
-import dataAccess.exceptions.AlreadyTakenException;
-import dataAccess.exceptions.BadRequestException;
-import dataAccess.exceptions.DataAccessException;
+import dataAccess.DataAccessException;
 import dataAccess.MemoryGameDAO;
-import dataAccess.exceptions.UnauthorizedException;
 import model.AuthData;
 import model.GameData;
 import request.CreateGameRequest;
