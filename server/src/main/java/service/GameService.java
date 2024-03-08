@@ -1,8 +1,6 @@
 package service;
 
-import dataAccess.MemoryAuthDAO;
-import dataAccess.DataAccessException;
-import dataAccess.MemoryGameDAO;
+import dataAccess.*;
 import model.AuthData;
 import model.GameData;
 import request.CreateGameRequest;
@@ -12,10 +10,12 @@ import result.CreateGameResult;
 import result.ListGamesResult;
 
 public class GameService {
-    private final MemoryGameDAO gameDAO;
-    private final MemoryAuthDAO authDAO;
+    // private final MemoryGameDAO gameDAO;
+    // private final MemoryAuthDAO authDAO;
+    private final MySqlGameDAO gameDAO;
+    private final MySqlAuthDAO authDAO;
 
-    public GameService (MemoryGameDAO gameDAO, MemoryAuthDAO authDAO) {
+    public GameService (MySqlGameDAO gameDAO, MySqlAuthDAO authDAO) {
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
     }

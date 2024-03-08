@@ -8,10 +8,13 @@ import request.*;
 import result.*;
 
 public class UserService {
-    private final MemoryUserDAO userDAO;
-    private final MemoryAuthDAO authDAO;
+    // private final MemoryUserDAO userDAO;
+    // private final MemoryAuthDAO authDAO;
+    private final MySqlUserDAO userDAO;
+    private final MySqlAuthDAO authDAO;
 
-    public UserService (MemoryUserDAO userDAO, MemoryAuthDAO authDAO) {
+    // public UserService (My userDAO, MemoryAuthDAO authDAO) {
+    public UserService (MySqlUserDAO userDAO, MySqlAuthDAO authDAO) {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
     }
@@ -35,7 +38,7 @@ public class UserService {
 
     public LoginResult login (LoginRequest loginRequest) throws UnauthorizedException, DataAccessException {
         UserData existingUser = userDAO.getUser(loginRequest.username());
-        if (existingUser == null || !existingUser.password().equals(loginRequest.password())) {
+        if (existingUser == null || !userDAO.verifyPassword(existingUser.username(), loginRequest.password())) {
             throw new UnauthorizedException("Invalid password");
         }
         AuthData newAuth = authDAO.createAuth(existingUser.username());

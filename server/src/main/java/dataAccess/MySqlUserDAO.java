@@ -1,83 +1,73 @@
 package dataAccess;
 
 import model.UserData;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.SQLException;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
-
+import static dataAccess.DatabaseManager.configureDatabase;
+import static dataAccess.DatabaseManager.executeUpdate;
 
 public class MySqlUserDAO implements UserDAO {
 
-    public MySqlUserDAO () throws DataAccessException {
-        configureDatabase();
+    public MySqlUserDAO () {
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS user (
+                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                `username` VARCHAR(255) NOT NULL,
+                `password` VARCHAR(255) NOT NULL,
+                `email` VARCHAR(255) NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+        };
+        try {
+            configureDatabase(createStatements);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void clear () throws DataAccessException {
+        var statement = "TRUNCATE user";
+        executeUpdate(statement);
     }
 
     @Override
     public UserData createUser (String username, String password, String email) throws DataAccessException {
-        return null;
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hashedPassword = encoder.encode(password);
+        var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+        executeUpdate(statement, username, hashedPassword, email);
+        return new UserData(username, hashedPassword, email);
     }
 
     @Override
     public UserData getUser (String username) throws DataAccessException {
+        var statement = "SELECT * FROM user WHERE username = ?";
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                var rs = ps.executeQuery();
+                if (rs.next()) {
+                    return new UserData(rs.getString("username"), rs.getString("password"), rs.getString("email"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to get user: %s, %s", username, e.getMessage()));
+        }
         return null;
     }
 
-    private int executeUpdate (String statement, Object... params) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    switch (param) {
-                        case String p -> ps.setString(i + 1, p);
-                        case Integer p -> ps.setInt(i + 1, p);
-                        // case  -> ps.setString(i + 1, p.toString());
-                        case null -> ps.setNull(i + 1, NULL);
-                        default -> {
-                        }
-                    }
-                }
-                ps.executeUpdate();
-
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
-        }
+    private String hashedPassword (String username, String password) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.encode(password);
     }
 
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS  pet (
-              `id` int NOT NULL AUTO_INCREMENT,
-              `name` varchar(256) NOT NULL,
-              `type` ENUM('CAT', 'DOG', 'FISH', 'FROG', 'ROCK') DEFAULT 'CAT',
-              `json` TEXT DEFAULT NULL,
-              PRIMARY KEY (`id`),
-              INDEX(type),
-              INDEX(name)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-    };
-
-
-    private void configureDatabase () throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
-        }
+    public boolean verifyPassword (String username, String password) throws DataAccessException {
+        UserData user = getUser(username);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.matches(password, user.password());
     }
 
 }

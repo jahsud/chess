@@ -1,7 +1,12 @@
 package dataAccess;
 
+import chess.ChessGame;
+
 import java.sql.*;
 import java.util.Properties;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
 
 public class DatabaseManager {
     private static final String databaseName;
@@ -34,7 +39,7 @@ public class DatabaseManager {
     /**
      * Creates the database if it does not already exist.
      */
-    static void createDatabase() throws DataAccessException {
+    static void createDatabase () throws DataAccessException {
         try {
             var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
             var conn = DriverManager.getConnection(connectionUrl, user, password);
@@ -44,6 +49,56 @@ public class DatabaseManager {
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
+    }
+
+    static void configureDatabase (String[] createStatements) throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+        }
+    }
+
+    static void executeUpdate (String statement, Object... params) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                for (var i = 0; i < params.length; i++) {
+                    var param = params[i];
+                    if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
+                    else if (param instanceof ChessGame p) ps.setString(i + 1, p.toString());
+                    else if (param == null) ps.setNull(i + 1, NULL);
+                }
+                ps.executeUpdate();
+
+                var rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    rs.getInt(1);
+                }
+
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("Unable to update database: %s, %s", statement, e.getMessage()));
+        }
+    }
+
+    public static int getLastInsertID () throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement("SELECT LAST_INSERT_ID()")) {
+                var rs = ps.executeQuery();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("Unable to get last insert id: %s", e.getMessage()));
+        }
+        return -1;
     }
 
     /**
@@ -58,7 +113,7 @@ public class DatabaseManager {
      * }
      * </code>
      */
-    static Connection getConnection() throws DataAccessException {
+    static Connection getConnection () throws DataAccessException {
         try {
             var conn = DriverManager.getConnection(connectionUrl, user, password);
             conn.setCatalog(databaseName);
@@ -67,4 +122,5 @@ public class DatabaseManager {
             throw new DataAccessException(e.getMessage());
         }
     }
+
 }
