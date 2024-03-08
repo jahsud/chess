@@ -1,25 +1,22 @@
-package serviceTests;
+package dataAccess;
 
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryUserDAO;
-import service.AlreadyTakenException;
-import service.BadRequestException;
-import dataAccess.DataAccessException;
-import service.UnauthorizedException;
 import model.AuthData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.LoginRequest;
-import request.RegisterRequest;
 import request.LogoutRequest;
+import request.RegisterRequest;
 import result.LoginResult;
 import result.RegisterResult;
+import service.AlreadyTakenException;
+import service.BadRequestException;
+import service.UnauthorizedException;
 import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class UserTests {
+public class UserDataAccessTests {
     private UserService userService;
 
     @BeforeEach
