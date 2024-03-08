@@ -10,11 +10,11 @@ import result.*;
 public class UserService {
     // private final MemoryUserDAO userDAO;
     // private final MemoryAuthDAO authDAO;
-    private final MySqlUserDAO userDAO;
-    private final MySqlAuthDAO authDAO;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
 
     // public UserService (My userDAO, MemoryAuthDAO authDAO) {
-    public UserService (MySqlUserDAO userDAO, MySqlAuthDAO authDAO) {
+    public UserService (UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
     }

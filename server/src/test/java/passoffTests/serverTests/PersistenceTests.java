@@ -7,7 +7,6 @@ import passoffTests.testClasses.TestException;
 import passoffTests.testClasses.TestModels;
 import server.Server;
 
-
 public class PersistenceTests {
 
     private static TestServerFacade serverFacade;
@@ -15,17 +14,17 @@ public class PersistenceTests {
 
 
     @BeforeAll
-    public static void init() {
+    public static void init () {
         startServer();
         serverFacade.clear();
     }
 
     @AfterAll
-    static void stopServer() {
+    static void stopServer () {
         server.stop();
     }
 
-    public static void startServer() {
+    public static void startServer () {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
@@ -36,7 +35,7 @@ public class PersistenceTests {
 
     @Test
     @DisplayName("Persistence Test")
-    public void persistenceTest() throws TestException {
+    public void persistenceTest () throws TestException {
         TestModels.TestRegisterRequest registerRequest = new TestModels.TestRegisterRequest();
         registerRequest.username = "ExistingUser";
         registerRequest.password = "existingUserPassword";

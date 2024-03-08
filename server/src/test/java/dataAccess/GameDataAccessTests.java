@@ -19,9 +19,9 @@ public class GameDataAccessTests {
 
     @BeforeEach
     void setup () throws DataAccessException {
-        MemoryUserDAO userDAO = new MemoryUserDAO();
-        MemoryGameDAO gameDAO = new MemoryGameDAO();
-        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        MySqlUserDAO userDAO = new MySqlUserDAO();
+        MySqlGameDAO gameDAO = new MySqlGameDAO();
+        MySqlAuthDAO authDAO = new MySqlAuthDAO();
 
         this.userService = new UserService(userDAO, authDAO);
         this.gameService = new GameService(gameDAO, authDAO);
@@ -52,7 +52,7 @@ public class GameDataAccessTests {
     void createGamePositiveTest () throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
         RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
         RegisterResult user = userService.register(registerRequest);
-        CreateGameRequest createGameRequest = new CreateGameRequest(user.authToken(), "gameName");
+        CreateGameRequest createGameRequest = new CreateGameRequest(user.authToken(), "nameOfGame");
         assertNotNull(gameService.createGame(createGameRequest));
     }
 

@@ -12,7 +12,6 @@ import java.util.Collection;
 import static dataAccess.DatabaseManager.configureDatabase;
 import static dataAccess.DatabaseManager.executeUpdate;
 
-
 public class MySqlGameDAO implements GameDAO {
 
     private final Gson gson = new Gson();
@@ -25,7 +24,7 @@ public class MySqlGameDAO implements GameDAO {
                 `whiteUsername` VARCHAR(255) NULL,
                 `blackUsername` VARCHAR(255) NULL,
                 `gameName` VARCHAR(255) NOT NULL,
-                `game` LONGTEXT NOT NULL
+                `game` LONGTEXT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
         };

@@ -21,8 +21,8 @@ public class UserDataAccessTests {
 
     @BeforeEach
     void setup () throws DataAccessException {
-        MemoryUserDAO userDAO = new MemoryUserDAO();
-        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        MySqlUserDAO userDAO = new MySqlUserDAO();
+        MySqlAuthDAO authDAO = new MySqlAuthDAO();
 
         this.userService = new UserService(userDAO, authDAO);
 

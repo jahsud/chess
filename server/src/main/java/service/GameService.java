@@ -12,10 +12,10 @@ import result.ListGamesResult;
 public class GameService {
     // private final MemoryGameDAO gameDAO;
     // private final MemoryAuthDAO authDAO;
-    private final MySqlGameDAO gameDAO;
-    private final MySqlAuthDAO authDAO;
+    private final GameDAO gameDAO;
+    private final AuthDAO authDAO;
 
-    public GameService (MySqlGameDAO gameDAO, MySqlAuthDAO authDAO) {
+    public GameService (GameDAO gameDAO, AuthDAO authDAO) {
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
     }

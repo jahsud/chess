@@ -1,10 +1,7 @@
 package dataAccess;
 
-import com.google.gson.Gson;
 import model.AuthData;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.sql.*;
 import java.util.UUID;
 
