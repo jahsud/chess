@@ -44,8 +44,7 @@ public class MySqlGameDAO implements GameDAO {
     @Override
     public GameData createGame (String gameName) throws DataAccessException {
         var statement = "INSERT INTO games (gameName) VALUES (?)";
-        executeUpdate(statement, gameName);
-        int gameID = DatabaseManager.getLastInsertID();
+        int gameID = executeUpdate(statement, gameName);
         return new GameData(gameID, null, null, gameName, null);
     }
 
@@ -70,7 +69,7 @@ public class MySqlGameDAO implements GameDAO {
     public void updateGame (int gameID, String whiteUsername, String blackUsername) throws DataAccessException {
         var newGame = gson.toJson(getGame(gameID).game());
         var statement = "UPDATE games SET whiteUsername = ?, blackUsername = ?, game = ? WHERE gameId = ?";
-        executeUpdate(statement, whiteUsername, blackUsername, gameID, newGame);
+        executeUpdate(statement, whiteUsername, blackUsername, newGame, gameID);
     }
 
     @Override
@@ -87,7 +86,7 @@ public class MySqlGameDAO implements GameDAO {
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to list games: %s", e.getMessage()));
         }
-        return null;
+        return games;
     }
 
     private GameData readGame (ResultSet rs) throws SQLException {
