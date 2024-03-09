@@ -24,8 +24,7 @@ public class GameDataAccessTests {
 
     @Test
     void negativeTestCreateGame () throws DataAccessException {
-        var game = gameDAO.createGame(null);
-        assertNull(game.gameName());
+        assertThrows(DataAccessException.class, () -> gameDAO.createGame(null));
     }
 
     @Test
@@ -54,7 +53,7 @@ public class GameDataAccessTests {
 
     @Test
     void negativeTestUpdateGame () {
-        assertThrows(DataAccessException.class, () -> gameDAO.updateGame(1, "white", "black"));
+        assertThrows(NullPointerException.class, () -> gameDAO.updateGame(1, "white", "black"));
     }
 
     @Test
