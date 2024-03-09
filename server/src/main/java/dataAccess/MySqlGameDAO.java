@@ -84,7 +84,7 @@ public class MySqlGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(String.format("unable to list games: %s", e.getMessage()));
+            throw new DataAccessException(String.format("Unable to list games: %s", e.getMessage()));
         }
         return games;
     }

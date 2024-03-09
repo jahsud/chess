@@ -1,92 +1,59 @@
 package dataAccess;
 
-import model.AuthData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import request.LoginRequest;
-import request.LogoutRequest;
-import request.RegisterRequest;
-import result.LoginResult;
-import result.RegisterResult;
-import service.AlreadyTakenException;
-import service.BadRequestException;
-import service.UnauthorizedException;
-import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 public class UserDataAccessTests {
-    private UserService userService;
+
+    private MySqlUserDAO userDAO;
 
     @BeforeEach
     void setup () throws DataAccessException {
-        MySqlUserDAO userDAO = new MySqlUserDAO();
-        MySqlAuthDAO authDAO = new MySqlAuthDAO();
-
-        this.userService = new UserService(userDAO, authDAO);
-
-        userService.clear();
+        userDAO = new MySqlUserDAO();
+        userDAO.clear();
     }
 
     @Test
-    void clearUserTest () throws DataAccessException, BadRequestException, AlreadyTakenException {
-        userService.register(new RegisterRequest("user1", "password", "email"));
-        userService.clear();
-        assertThrows(UnauthorizedException.class, () -> userService.login(new LoginRequest("user1", "password")));
-    }
-
-    @Test
-    void registerPositiveTest () throws DataAccessException, BadRequestException, AlreadyTakenException {
-        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
-        RegisterResult user = userService.register(registerRequest);
+    void positiveTestCreateUser () throws DataAccessException {
+        userDAO.createUser("username", "password", "email");
+        var user = userDAO.getUser("username");
         assertNotNull(user);
+        assertEquals("username", user.username());
+        assertTrue(userDAO.verifyPassword("username", "password"));
+        assertEquals("email", user.email());
     }
 
     @Test
-    void registerNegativeTest () throws DataAccessException, BadRequestException, AlreadyTakenException {
-        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
-        userService.register(registerRequest);
-        assertThrows(AlreadyTakenException.class, () -> userService.register(registerRequest));
+    void negativeTestCreateUser () throws DataAccessException {
+        assertThrows(IllegalArgumentException.class, () -> userDAO.createUser(null, null, null));
     }
 
     @Test
-    void loginPositiveTest () throws DataAccessException, BadRequestException, AlreadyTakenException, UnauthorizedException {
-        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
-        userService.register(registerRequest);
-        LoginRequest loginRequest = new LoginRequest("user1", "password");
-        LoginResult user = userService.login(loginRequest);
+    void positiveTestGetUser () throws DataAccessException {
+        userDAO.createUser("username", "password", "email");
+        var user = userDAO.getUser("username");
         assertNotNull(user);
+        assertEquals("username", user.username());
+        assertTrue(userDAO.verifyPassword("username", "password"));
     }
 
     @Test
-    void loginNegativeTest () throws DataAccessException, BadRequestException, AlreadyTakenException, UnauthorizedException {
-        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
-        userService.register(registerRequest);
-        LoginRequest loginRequest = new LoginRequest("user1", "password");
-        userService.login(loginRequest);
-        assertThrows(UnauthorizedException.class, () -> userService.login(new LoginRequest("user1", "wrongpassword")));
+    void negativeTestGetUser () throws DataAccessException {
+        var user = userDAO.getUser("username");
+        assertNull(user);
     }
 
     @Test
-    void logoutPositiveTest () throws DataAccessException, BadRequestException, AlreadyTakenException, UnauthorizedException {
-        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
-        userService.register(registerRequest);
-        LoginRequest loginRequest = new LoginRequest("user1", "password");
-        LoginResult user = userService.login(loginRequest);
-        AuthData auth = new AuthData(user.authToken(), user.username());
-        assertDoesNotThrow(() -> userService.logout(new LogoutRequest(auth.authToken())));
+    void positiveTestVerifyPassword () throws DataAccessException {
+        userDAO.createUser("username", "password", "email");
+        assertTrue(userDAO.verifyPassword("username", "password"));
     }
 
     @Test
-    void logoutNegativeTest () throws DataAccessException, BadRequestException, AlreadyTakenException, UnauthorizedException {
-        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
-        userService.register(registerRequest);
-        LoginRequest loginRequest = new LoginRequest("user1", "password");
-        LoginResult user = userService.login(loginRequest);
-        AuthData auth = new AuthData(user.authToken(), user.username());
-        userService.logout(new LogoutRequest(auth.authToken()));
-        assertThrows(UnauthorizedException.class, () -> userService.logout(new LogoutRequest(auth.authToken())));
+    void negativeTestVerifyPassword () throws DataAccessException {
+        userDAO.createUser("username", "password", "email");
+        assertFalse(userDAO.verifyPassword("username", "wrongPassword"));
     }
-
 }

@@ -2,8 +2,6 @@ package dataAccess;
 
 import model.AuthData;
 
-import static java.sql.Types.NULL;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,4 +36,44 @@ public class AuthDataAccessTests {
         assertDoesNotThrow(() -> authDAO.createAuth("username"));
     }
 
+    @Test
+    void positiveTestGetAuth () throws DataAccessException {
+        AuthData auth = authDAO.createAuth("username");
+        assertNotNull(auth);
+        assertEquals("username", auth.username());
+        assertNotNull(auth.authToken());
+        assertNotNull(authDAO.getAuth(auth.authToken()));
+    }
+
+    @Test
+    void negativeTestGetAuth () throws DataAccessException {
+        assertNull(authDAO.getAuth("authToken"));
+    }
+
+    @Test
+    void positiveTestDeleteAuth () throws DataAccessException {
+        AuthData auth = authDAO.createAuth("username");
+        assertNotNull(auth);
+        assertEquals("username", auth.username());
+        assertNotNull(auth.authToken());
+        assertNotNull(authDAO.getAuth(auth.authToken()));
+        authDAO.deleteAuth(auth.authToken());
+        assertNull(authDAO.getAuth(auth.authToken()));
+    }
+
+    @Test
+    void negativeTestDeleteAuth () throws DataAccessException {
+        assertDoesNotThrow(() -> authDAO.deleteAuth("authToken"));
+    }
+
+    @Test
+    void testClear () throws DataAccessException {
+        AuthData auth = authDAO.createAuth("username");
+        assertNotNull(auth);
+        assertEquals("username", auth.username());
+        assertNotNull(auth.authToken());
+        assertNotNull(authDAO.getAuth(auth.authToken()));
+        authDAO.clear();
+        assertNull(authDAO.getAuth(auth.authToken()));
+    }
 }

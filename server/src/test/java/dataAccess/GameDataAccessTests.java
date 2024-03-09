@@ -2,86 +2,76 @@ package dataAccess;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import request.CreateGameRequest;
-import request.JoinGameRequest;
-import request.ListGamesRequest;
-import request.RegisterRequest;
-import result.CreateGameResult;
-import result.RegisterResult;
-import service.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GameDataAccessTests {
-    GameService gameService;
-    UserService userService;
+
+    private GameDAO gameDAO;
 
     @BeforeEach
     void setup () throws DataAccessException {
-        MySqlUserDAO userDAO = new MySqlUserDAO();
-        MySqlGameDAO gameDAO = new MySqlGameDAO();
-        MySqlAuthDAO authDAO = new MySqlAuthDAO();
-
-        this.userService = new UserService(userDAO, authDAO);
-        this.gameService = new GameService(gameDAO, authDAO);
-
-        userService.clear();
-        gameService.clear();
+        gameDAO = new MySqlGameDAO();
+        gameDAO.clear();
     }
 
     @Test
-    void clearGamesTest () throws DataAccessException {
-        gameService.clear();
+    void positiveTestCreateGame () throws DataAccessException {
+        var game = gameDAO.createGame("Test Game");
+        assertNotNull(game);
+        assertEquals("Test Game", game.gameName());
     }
 
     @Test
-    void listGamesPositiveTest () throws DataAccessException, BadRequestException, UnauthorizedException, AlreadyTakenException {
-        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
-        RegisterResult user = userService.register(registerRequest);
-        assertNotNull(gameService.listGames(new ListGamesRequest(user.authToken())));
+    void negativeTestCreateGame () throws DataAccessException {
+        var game = gameDAO.createGame(null);
+        assertNull(game.gameName());
     }
 
     @Test
-    void listGamesNegativeTest () {
-        ListGamesRequest request = new ListGamesRequest("badToken");
-        assertThrows(UnauthorizedException.class, () -> gameService.listGames(request));
+    void positiveTestGetGame () throws DataAccessException {
+        var game = gameDAO.createGame("Test Game");
+        var gameData = gameDAO.getGame(game.gameID());
+        assertNotNull(gameData);
+        assertEquals(game, gameData);
     }
 
     @Test
-    void createGamePositiveTest () throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
-        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
-        RegisterResult user = userService.register(registerRequest);
-        CreateGameRequest createGameRequest = new CreateGameRequest(user.authToken(), "nameOfGame");
-        assertNotNull(gameService.createGame(createGameRequest));
+    void negativeTestGetGame () throws DataAccessException {
+        var gameData = gameDAO.getGame(1);
+        assertNull(gameData);
     }
 
     @Test
-    void createGameNegativeTest () throws DataAccessException, BadRequestException, AlreadyTakenException {
-        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
-        userService.register(registerRequest);
-        CreateGameRequest request = new CreateGameRequest("badToken", "gameName");
-        assertThrows(UnauthorizedException.class, () -> gameService.createGame(request));
+    void positiveTestUpdateGame () throws DataAccessException {
+        var game = gameDAO.createGame("Test Game");
+        gameDAO.updateGame(game.gameID(), "white", "black");
+        var gameData = gameDAO.getGame(game.gameID());
+        assertNotNull(gameData);
+        assertEquals("white", gameData.whiteUsername());
+        assertEquals("black", gameData.blackUsername());
     }
 
     @Test
-    void joinGamePositiveTest () throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
-        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
-        RegisterResult user = userService.register(registerRequest);
-        CreateGameRequest createGameRequest = new CreateGameRequest(user.authToken(), "gameName");
-        CreateGameResult game = gameService.createGame(createGameRequest);
-        JoinGameRequest joinGameRequest = new JoinGameRequest(user.authToken(), "WHITE", game.gameID());
-        gameService.joinGame(joinGameRequest);
+    void negativeTestUpdateGame () {
+        assertThrows(DataAccessException.class, () -> gameDAO.updateGame(1, "white", "black"));
     }
 
     @Test
-    void joinGameNegativeTest () throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
-        RegisterRequest registerRequest = new RegisterRequest("user1", "password", "email");
-        RegisterResult user = userService.register(registerRequest);
-        CreateGameRequest createGameRequest = new CreateGameRequest(user.authToken(), "gameName");
-        CreateGameResult game = gameService.createGame(createGameRequest);
-        JoinGameRequest joinGameRequest = new JoinGameRequest("badToken", "WHITE", game.gameID());
-        assertThrows(UnauthorizedException.class, () -> gameService.joinGame(joinGameRequest));
+    void positiveTestListGames () throws DataAccessException {
+        var game = gameDAO.createGame("Test Game");
+        var games = gameDAO.listGames();
+        assertNotNull(games);
+        assertEquals(1, games.size());
+        assertEquals(game, games.iterator().next());
     }
+
+    @Test
+    void negativeTestListGames () throws DataAccessException {
+        var games = gameDAO.listGames();
+        assertNotNull(games);
+        assertEquals(0, games.size());
+    }
+
 
 }
