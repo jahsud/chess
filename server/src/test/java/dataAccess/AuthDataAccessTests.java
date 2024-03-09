@@ -38,6 +38,4 @@ public class AuthDataAccessTests {
         assertDoesNotThrow(() -> authDAO.createAuth("username"));
     }
 
-    @Test
-
 }
