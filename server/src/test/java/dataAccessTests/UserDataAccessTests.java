@@ -1,5 +1,7 @@
-package dataAccess;
+package dataAccessTests;
 
+import dataAccess.DataAccessException;
+import dataAccess.MySqlUserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
