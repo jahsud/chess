@@ -59,11 +59,6 @@ public class MySqlUserDAO implements UserDAO {
         return null;
     }
 
-    private String hashedPassword (String username, String password) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        return encoder.encode(password);
-    }
-
     public boolean verifyPassword (String username, String password) throws DataAccessException {
         UserData user = getUser(username);
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
