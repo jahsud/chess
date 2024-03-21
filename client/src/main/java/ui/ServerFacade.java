@@ -1,14 +1,13 @@
 package ui;
 
 import com.google.gson.Gson;
-import model.*;
 import request.*;
 import result.*;
 
 import java.io.*;
 import java.net.*;
 
-import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
+import static ui.EscapeSequences.*;
 
 public class ServerFacade {
 
@@ -48,7 +47,7 @@ public class ServerFacade {
         return makeRequest("GET", path, new ListGamesRequest(authToken), ListGamesResult.class);
     }
 
-    public CreateGameResult createGame (String authToken) throws ResponseException {
+    public CreateGameResult createGame (String authToken, String gameName) throws ResponseException {
         var path = "/game";
         return makeRequest("POST", path, new CreateGameRequest(authToken, gameName), CreateGameResult.class);
     }
@@ -82,7 +81,7 @@ public class ServerFacade {
     private void throwIfNotSuccessful (HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            throw new ResponseException(status, SET_TEXT_COLOR_RED + "Failure: " + status);
+            throw new ResponseException(status, SET_TEXT_COLOR_RED + "Failure: " + status + " " + http.getResponseMessage() + "\n");
         }
     }
 

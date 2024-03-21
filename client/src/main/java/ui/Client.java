@@ -1,7 +1,5 @@
 package ui;
 
-import model.AuthData;
-
 import java.util.Arrays;
 
 import static ui.EscapeSequences.*;
@@ -24,7 +22,7 @@ public class Client {
                 case "register" -> register(params);
                 case "login" -> login(params);
                 case "create" -> create(params);
-                case "list" -> list(params);
+                case "list" -> list();
                 case "join" -> join(params);
                 case "observe" -> observe(params);
                 case "logout" -> logout();
@@ -41,7 +39,7 @@ public class Client {
             var username = params[0];
             var password = params[1];
             var email = params[2];
-            authToken = server.login(username, password).authToken();
+            authToken = server.register(username, password, email).authToken();
             state = State.LOGGED_IN;
             return "Logged in as " + username + "\n";
         }
@@ -60,30 +58,38 @@ public class Client {
     }
 
     private String logout () throws ResponseException {
+        assertSignedIn();
         String message = server.logout(authToken).message();
         state = State.LOGGED_OUT;
         return message + "\n";
     }
 
     private String observe (String... params) throws ResponseException {
+        assertSignedIn();
         var gameID = params[0];
         String message = server.observe(authToken, Integer.valueOf(gameID)).message();
         return message + "\n";
     }
 
     private String join (String... params) throws ResponseException {
+        assertSignedIn();
         var gameID = params[0];
         var playerColor = (params.length > 1) ? params[1] : null;
         String message = server.joinGame(authToken, playerColor, Integer.valueOf(gameID)).message();
         return message + "\n";
     }
 
-    private String list (String... params) {
-
+    private String list () throws ResponseException {
+        assertSignedIn();
+        var games = server.listGames(authToken).games();
+        return games.toString();
     }
 
-    private String create (String... params) {
-        return null;
+    private String create (String... params) throws ResponseException {
+        assertSignedIn();
+        var gameName = String.join(" ", params);
+        String message = server.createGame(authToken, gameName).message();
+        return message + "\n";
     }
 
 
@@ -93,7 +99,7 @@ public class Client {
 
     private void assertSignedIn () throws ResponseException {
         if (state == State.LOGGED_OUT) {
-            throw new ResponseException(400, "You must login");
+            throw new ResponseException(400, "You must login\n");
         }
     }
 
