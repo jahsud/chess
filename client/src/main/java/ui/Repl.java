@@ -13,7 +13,6 @@ public class Repl {
 
     public void run () {
         System.out.println("♕ Welcome to 240 Chess. Type 'help' to get started. ♕");
-        System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -33,6 +32,6 @@ public class Repl {
     }
 
     private void printPrompt () {
-        System.out.print("\n" + RESET_TEXT_COLOR + RESET_BG_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + SET_TEXT_COLOR_WHITE + "[" + client.getState() + "]" + " >>> " + SET_TEXT_COLOR_GREEN);
     }
 }

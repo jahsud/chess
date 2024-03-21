@@ -1,7 +1,7 @@
 package ui;
 
 public class ResponseException extends Exception {
-    public ResponseException (String message) {
+    public ResponseException (int status, String message) {
         super(message);
     }
 }

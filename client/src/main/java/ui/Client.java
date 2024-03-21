@@ -1,12 +1,15 @@
 package ui;
 
+import model.AuthData;
+
 import java.util.Arrays;
 
 import static ui.EscapeSequences.*;
 
 public class Client {
     private final ServerFacade server;
-    private final State state = State.LOGGED_OUT;
+    private State state = State.LOGGED_OUT;
+    private String authToken;
 
     public Client (String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -20,6 +23,11 @@ public class Client {
             return switch (cmd) {
                 case "register" -> register(params);
                 case "login" -> login(params);
+                case "create" -> create(params);
+                case "list" -> list(params);
+                case "join" -> join(params);
+                case "observe" -> observe(params);
+                case "logout" -> logout();
                 case "quit" -> quit();
                 default -> help();
             };
@@ -29,24 +37,64 @@ public class Client {
     }
 
     public String register (String... params) throws ResponseException {
-        if (params.length != 3) {
-            throw new ResponseException("Usage: register <USERNAME> <PASSWORD> <EMAIL>");
+        if (params.length >= 3) {
+            var username = params[0];
+            var password = params[1];
+            var email = params[2];
+            authToken = server.login(username, password).authToken();
+            state = State.LOGGED_IN;
+            return "Logged in as " + username + "\n";
         }
-        var username = params[0];
-        var password = params[1];
-        var email = params[2];
-        server.register(username, password, email);
-        return "Logged in as " + username + "\n";
+        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     public String login (String... params) throws ResponseException {
-        if (params.length != 2) {
-            throw new ResponseException("Usage: login <USERNAME> <PASSWORD>");
+        if (params.length >= 2) {
+            var username = params[0];
+            var password = params[1];
+            authToken = server.login(username, password).authToken();
+            state = State.LOGGED_IN;
+            return "Logged in as " + username + "\n";
         }
-        var username = params[0];
-        var password = params[1];
-        server.login(username, password);
-        return "Logged in as " + username + "\n";
+        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
+    }
+
+    private String logout () throws ResponseException {
+        String message = server.logout(authToken).message();
+        state = State.LOGGED_OUT;
+        return message + "\n";
+    }
+
+    private String observe (String... params) throws ResponseException {
+        var gameID = params[0];
+        String message = server.observe(authToken, Integer.valueOf(gameID)).message();
+        return message + "\n";
+    }
+
+    private String join (String... params) throws ResponseException {
+        var gameID = params[0];
+        var playerColor = (params.length > 1) ? params[1] : null;
+        String message = server.joinGame(authToken, playerColor, Integer.valueOf(gameID)).message();
+        return message + "\n";
+    }
+
+    private String list (String... params) {
+
+    }
+
+    private String create (String... params) {
+        return null;
+    }
+
+
+    public State getState () {
+        return state;
+    }
+
+    private void assertSignedIn () throws ResponseException {
+        if (state == State.LOGGED_OUT) {
+            throw new ResponseException(400, "You must login");
+        }
     }
 
     public String quit () {
@@ -55,12 +103,18 @@ public class Client {
 
     public String help () {
         if (state == State.LOGGED_OUT) {
-            return SET_TEXT_COLOR_BLUE + "register <USERNAME> <PASSWORD> <EMAIL>" + RESET_TEXT_COLOR + " - " + SET_TEXT_COLOR_MAGENTA + "to create an account\n" +
-                    SET_TEXT_COLOR_BLUE + "login <USERNAME> <PASSWORD>" + RESET_TEXT_COLOR + " - " + SET_TEXT_COLOR_MAGENTA + "to play chess\n" +
-                    SET_TEXT_COLOR_BLUE + "quit" + RESET_TEXT_COLOR + " - " + SET_TEXT_COLOR_MAGENTA + "playing chess\n" +
-                    SET_TEXT_COLOR_BLUE + "help" + RESET_TEXT_COLOR + " - " + SET_TEXT_COLOR_MAGENTA + "with possible commands\n";
+            return SET_TEXT_COLOR_BLUE + "register <USERNAME> <PASSWORD> <EMAIL>" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "to create an account\n" +
+                    SET_TEXT_COLOR_BLUE + "login <USERNAME> <PASSWORD>" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "to play chess\n" +
+                    SET_TEXT_COLOR_BLUE + "quit" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "playing chess\n" +
+                    SET_TEXT_COLOR_BLUE + "help" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "with possible commands\n";
         } else {
-            return "Hi there!\n";
+            return SET_TEXT_COLOR_BLUE + "create <NAME>" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "a game\n" +
+                    SET_TEXT_COLOR_BLUE + "list" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "games\n" +
+                    SET_TEXT_COLOR_BLUE + "join <ID> [WHITE|BLACK|<empty>]" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "a game\n" +
+                    SET_TEXT_COLOR_BLUE + "observe <ID>" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "a game\n" +
+                    SET_TEXT_COLOR_BLUE + "logout" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "games\n" +
+                    SET_TEXT_COLOR_BLUE + "quit" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "playing chess\n" +
+                    SET_TEXT_COLOR_BLUE + "help" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "with possible commands\n";
         }
     }
 }
