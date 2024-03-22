@@ -8,6 +8,7 @@ public class Client {
     private final ServerFacade server;
     private State state = State.LOGGED_OUT;
     private String authToken;
+    private final Board board = new Board();
 
     public Client (String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -70,6 +71,7 @@ public class Client {
             assertSignedIn();
             var gameID = params[0];
             server.observe(authToken, Integer.valueOf(gameID));
+            board.draw();
             return "Observing game " + gameID + "\n";
         }
         throw new ResponseException(400, "Expected: <ID>\n");
@@ -81,6 +83,7 @@ public class Client {
             var gameID = params[0];
             var playerColor = (params.length > 1) ? params[1] : "";
             server.joinGame(authToken, playerColor, Integer.valueOf(gameID));
+            board.draw();
             return "Joined game " + gameID + " \n";
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK|<empty>]\n");
