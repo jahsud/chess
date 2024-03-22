@@ -50,48 +50,48 @@ public class Client {
         if (params.length >= 2) {
             var username = params[0];
             var password = params[1];
-            authToken = server.login(username, password).authToken();
+            String message = server.login(username, password).message();
             state = State.LOGGED_IN;
-            return "Logged in as " + username + "\n";
+            return message;
         }
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
     }
 
-    private String logout () throws ResponseException {
+    public String logout () throws ResponseException {
         assertSignedIn();
-        String message = server.logout(authToken).message();
+        server.logout(authToken);
         state = State.LOGGED_OUT;
-        return message + "\n";
+        return "Logged out\n";
     }
 
-    private String observe (String... params) throws ResponseException {
+    public String observe (String... params) throws ResponseException {
         if (params.length >= 1) {
             assertSignedIn();
             var gameID = params[0];
-            String message = server.observe(authToken, Integer.valueOf(gameID)).message();
-            return message + "\n";
+            server.observe(authToken, Integer.valueOf(gameID));
+            return "Observing game " + gameID + "\n";
         }
         throw new ResponseException(400, "Expected: <ID>");
     }
 
-    private String join (String... params) throws ResponseException {
+    public String join (String... params) throws ResponseException {
         if (params.length >= 1) {
             assertSignedIn();
             var gameID = params[0];
             var playerColor = (params.length > 1) ? params[1] : "";
-            String message = server.joinGame(authToken, playerColor, Integer.valueOf(gameID)).message();
-            return message + "\n";
+            server.joinGame(authToken, playerColor, Integer.valueOf(gameID));
+            return "Joined game " + gameID + "as a " + playerColor + "player\n";
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK|<empty>]");
     }
 
-    private String list () throws ResponseException {
+    public String list () throws ResponseException {
         assertSignedIn();
         var games = server.listGames(authToken).games();
         return games.toString();
     }
 
-    private String create (String... params) throws ResponseException {
+    public String create (String... params) throws ResponseException {
         if (params.length >= 1) {
             assertSignedIn();
             var gameName = params[0];

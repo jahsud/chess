@@ -27,19 +27,19 @@ public class ServerFacade {
         return makeRequest("POST", path, new LoginRequest(username, password), LoginResult.class);
     }
 
-    public LogoutResult logout (String authToken) throws ResponseException {
+    public void logout (String authToken) throws ResponseException {
         var path = "/session";
-        return makeRequest("DELETE", path, new LogoutRequest(authToken), null);
+        makeRequest("DELETE", path, new LogoutRequest(authToken), null);
     }
 
-    public JoinGameResult observe (String authToken, Integer gameID) throws ResponseException {
+    public void observe (String authToken, Integer gameID) throws ResponseException {
         var path = "/game";
-        return makeRequest("PUT", path, new JoinGameRequest(authToken, null, gameID), JoinGameResult.class);
+        makeRequest("PUT", path, new JoinGameRequest(authToken, null, gameID), null);
     }
 
-    public JoinGameResult joinGame (String authToken, String playerColor, Integer gameID) throws ResponseException {
+    public void joinGame (String authToken, String playerColor, Integer gameID) throws ResponseException {
         var path = "/game";
-        return makeRequest("PUT", path, new JoinGameRequest(authToken, playerColor, gameID), JoinGameResult.class);
+        makeRequest("PUT", path, new JoinGameRequest(authToken, playerColor, gameID), null);
     }
 
     public ListGamesResult listGames (String authToken) throws ResponseException {

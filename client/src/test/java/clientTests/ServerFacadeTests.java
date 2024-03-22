@@ -57,8 +57,7 @@ public class ServerFacadeTests {
     public void logoutPositiveTest () throws ResponseException {
         facade.register("player1", "password", "email");
         var loginData = facade.login("player1", "password");
-        var logoutData = facade.logout(loginData.authToken());
-        Assertions.assertNotNull(logoutData);
+        Assertions.assertDoesNotThrow(() -> facade.logout(loginData.authToken()));
     }
 
     @Test
@@ -99,8 +98,7 @@ public class ServerFacadeTests {
         facade.register("player1", "password", "email");
         var loginData = facade.login("player1", "password");
         var createGameData = facade.createGame(loginData.authToken(), "gameName");
-        var joinGameData = facade.joinGame(loginData.authToken(), "WHITE", createGameData.gameID());
-        Assertions.assertNotNull(joinGameData);
+        Assertions.assertDoesNotThrow(() -> facade.joinGame(loginData.authToken(), "WHITE", createGameData.gameID()));
     }
 
     @Test
@@ -116,8 +114,7 @@ public class ServerFacadeTests {
         facade.register("player1", "password", "email");
         var loginData = facade.login("player1", "password");
         var createGameData = facade.createGame(loginData.authToken(), "gameName");
-        var observeGameData = facade.observe(loginData.authToken(), createGameData.gameID());
-        Assertions.assertNotNull(observeGameData);
+        Assertions.assertDoesNotThrow(() -> facade.observe(loginData.authToken(), createGameData.gameID()));
     }
 
     @Test

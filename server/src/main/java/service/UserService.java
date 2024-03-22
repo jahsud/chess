@@ -42,7 +42,7 @@ public class UserService {
             throw new UnauthorizedException("Invalid password");
         }
         AuthData newAuth = authDAO.createAuth(existingUser.username());
-        return new LoginResult(existingUser.username(), newAuth.authToken(), "Logged in successfully");
+        return new LoginResult(existingUser.username(), newAuth.authToken(), "Logged in as " + existingUser.username() + "\n");
     }
 
     public void logout (LogoutRequest logoutRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
