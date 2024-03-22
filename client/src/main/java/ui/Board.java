@@ -1,57 +1,43 @@
 package ui;
 
+import static ui.EscapeSequences.*;
+
 public class Board {
+    // Add chess piece and empty square definitions here
+    // For example: public static final String WHITE_PAWN = EscapeSequences.WHITE_PAWN;
 
-    private static final String RESET = EscapeSequences.RESET_TEXT_COLOR;
-
-    // Using the provided piece representations from EscapeSequences
-    private static final String[][] INITIAL_BOARD = {
-            {EscapeSequences.BLACK_ROOK, EscapeSequences.BLACK_KNIGHT, EscapeSequences.BLACK_BISHOP, EscapeSequences.BLACK_QUEEN, EscapeSequences.BLACK_KING, EscapeSequences.BLACK_BISHOP, EscapeSequences.BLACK_KNIGHT, EscapeSequences.BLACK_ROOK},
-            {EscapeSequences.BLACK_PAWN, EscapeSequences.BLACK_PAWN, EscapeSequences.BLACK_PAWN, EscapeSequences.BLACK_PAWN, EscapeSequences.BLACK_PAWN, EscapeSequences.BLACK_PAWN, EscapeSequences.BLACK_PAWN, EscapeSequences.BLACK_PAWN},
-            {EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY},
-            {EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY},
-            {EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY},
-            {EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY, EscapeSequences.EMPTY},
-            {EscapeSequences.WHITE_PAWN, EscapeSequences.WHITE_PAWN, EscapeSequences.WHITE_PAWN, EscapeSequences.WHITE_PAWN, EscapeSequences.WHITE_PAWN, EscapeSequences.WHITE_PAWN, EscapeSequences.WHITE_PAWN, EscapeSequences.WHITE_PAWN},
-            {EscapeSequences.WHITE_ROOK, EscapeSequences.WHITE_KNIGHT, EscapeSequences.WHITE_BISHOP, EscapeSequences.WHITE_QUEEN, EscapeSequences.WHITE_KING, EscapeSequences.WHITE_BISHOP, EscapeSequences.WHITE_KNIGHT, EscapeSequences.WHITE_ROOK}
+    // Define the board with empty spaces and initial piece placements
+    private final String[][] board = new String[][]{
+            {WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK},
+            {WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN},
+            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+            {BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN},
+            {BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}
     };
 
     public void draw () {
-        System.out.println(EscapeSequences.ERASE_SCREEN);
-        drawBoard(INITIAL_BOARD, true); // Draw for white at the bottom
-        System.out.println("\n\n");
-        drawBoard(INITIAL_BOARD, false); // Draw for black at the bottom
+        System.out.println(ERASE_SCREEN);
+        System.out.println("  a b c d e f g h");  // Column labels
+        drawBoardFromPerspective('w');  // White's perspective
+        System.out.println("\n");
+        drawBoardFromPerspective('b');  // Black's perspective
+        System.out.println("  h g f e d c b a");  // Column labels reversed for Black's perspective
     }
 
-    private void drawBoard (String[][] board, boolean whiteAtBottom) {
-        String[][] displayBoard = whiteAtBottom ? board : reverseBoard(board);
-        for (int y = 0; y < displayBoard.length; y++) {
-            for (int x = 0; x < displayBoard[y].length; x++) {
-                printTile(displayBoard[y][x], x, y);
+    private void drawBoardFromPerspective (char perspective) {
+        for (int i = 0; i < 8; i++) {
+            int row = perspective == 'w' ? 8 - i : i + 1;  // Row numbers
+            System.out.print(row + " ");  // Print row label
+
+            for (int j = 0; j < 8; j++) {
+                String square = board[perspective == 'w' ? i : 7 - i][j];
+                System.out.print(square + " ");  // Print the piece or empty square
             }
-            System.out.println(RESET);
+
+            System.out.println(row);  // Print row label again
         }
-        // Print the letters for the columns
-        printColumnLetters();
-    }
-
-    private void printTile (String piece, int x, int y) {
-        String bgColor = (x + y) % 2 == 0 ? EscapeSequences.SET_BG_COLOR_WHITE : EscapeSequences.SET_BG_COLOR_BLACK;
-        System.out.print(bgColor + piece + RESET);
-    }
-
-    private String[][] reverseBoard (String[][] board) {
-        String[][] reversed = new String[board.length][];
-        for (int i = 0; i < board.length; i++) {
-            reversed[board.length - 1 - i] = board[i].clone();
-        }
-        return reversed;
-    }
-
-    private void printColumnLetters () {
-        String bottomLetters = " a  b  c  d  e  f  g  h ";
-        String topLetters = new StringBuilder(bottomLetters).reverse().toString();
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY + bottomLetters + RESET);
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY + topLetters + RESET);
     }
 }

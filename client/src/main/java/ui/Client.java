@@ -1,6 +1,9 @@
 package ui;
 
+import model.GameData;
+
 import java.util.Arrays;
+import java.util.List;
 
 import static ui.EscapeSequences.*;
 
@@ -8,6 +11,7 @@ public class Client {
     private final ServerFacade server;
     private State state = State.LOGGED_OUT;
     private String authToken;
+    private List<GameData> games;
     private final Board board = new Board();
 
     public Client (String serverUrl) {
@@ -92,7 +96,11 @@ public class Client {
     public String list () throws ResponseException {
         assertSignedIn();
         var games = server.listGames(authToken).games();
-        return games.toString();
+        var result = new StringBuilder();
+        for (var game : games) {
+            result.append(game.gameID()).append(game.gameName()).append(game.whiteUsername()).append(game.blackUsername()).append("\n");
+        }
+        return result.toString();
     }
 
     public String create (String... params) throws ResponseException {
