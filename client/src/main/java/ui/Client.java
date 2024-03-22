@@ -43,18 +43,19 @@ public class Client {
             state = State.LOGGED_IN;
             return "Logged in as " + username + "\n";
         }
-        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
+        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>\n");
     }
 
     public String login (String... params) throws ResponseException {
         if (params.length >= 2) {
             var username = params[0];
             var password = params[1];
-            String message = server.login(username, password).message();
+            var loginData = server.login(username, password);
+            authToken = loginData.authToken();
             state = State.LOGGED_IN;
-            return message;
+            return loginData.message();
         }
-        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
+        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>\n");
     }
 
     public String logout () throws ResponseException {
@@ -71,7 +72,7 @@ public class Client {
             server.observe(authToken, Integer.valueOf(gameID));
             return "Observing game " + gameID + "\n";
         }
-        throw new ResponseException(400, "Expected: <ID>");
+        throw new ResponseException(400, "Expected: <ID>\n");
     }
 
     public String join (String... params) throws ResponseException {
@@ -80,9 +81,9 @@ public class Client {
             var gameID = params[0];
             var playerColor = (params.length > 1) ? params[1] : "";
             server.joinGame(authToken, playerColor, Integer.valueOf(gameID));
-            return "Joined game " + gameID + "as a " + playerColor + "player\n";
+            return "Joined game " + gameID + " \n";
         }
-        throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK|<empty>]");
+        throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK|<empty>]\n");
     }
 
     public String list () throws ResponseException {
@@ -98,7 +99,7 @@ public class Client {
             var gameID = server.createGame(authToken, gameName).gameID();
             return "Game created with ID: " + gameID + "\n";
         }
-        throw new ResponseException(400, "Expected: <NAME>");
+        throw new ResponseException(400, "Expected: <NAME>\n");
     }
 
 
