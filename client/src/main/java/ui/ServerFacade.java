@@ -52,12 +52,22 @@ public class ServerFacade {
         return makeRequest("POST", path, new CreateGameRequest(authToken, gameName), CreateGameResult.class);
     }
 
+    public void clear () throws ResponseException {
+        var path = "/db";
+        makeRequest("DELETE", path, null, null);
+    }
+
     private <T> T makeRequest (String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+
+            if (request instanceof AuthRequest) {
+                String authToken = ((AuthRequest) request).getAuthToken();
+                http.addRequestProperty("Authorization", authToken);
+            }
 
             writeBody(request, http);
             http.connect();

@@ -65,18 +65,24 @@ public class Client {
     }
 
     private String observe (String... params) throws ResponseException {
-        assertSignedIn();
-        var gameID = params[0];
-        String message = server.observe(authToken, Integer.valueOf(gameID)).message();
-        return message + "\n";
+        if (params.length >= 1) {
+            assertSignedIn();
+            var gameID = params[0];
+            String message = server.observe(authToken, Integer.valueOf(gameID)).message();
+            return message + "\n";
+        }
+        throw new ResponseException(400, "Expected: <ID>");
     }
 
     private String join (String... params) throws ResponseException {
-        assertSignedIn();
-        var gameID = params[0];
-        var playerColor = (params.length > 1) ? params[1] : null;
-        String message = server.joinGame(authToken, playerColor, Integer.valueOf(gameID)).message();
-        return message + "\n";
+        if (params.length >= 1) {
+            assertSignedIn();
+            var gameID = params[0];
+            var playerColor = (params.length > 1) ? params[1] : "";
+            String message = server.joinGame(authToken, playerColor, Integer.valueOf(gameID)).message();
+            return message + "\n";
+        }
+        throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK|<empty>]");
     }
 
     private String list () throws ResponseException {
@@ -86,10 +92,13 @@ public class Client {
     }
 
     private String create (String... params) throws ResponseException {
-        assertSignedIn();
-        var gameName = String.join(" ", params);
-        String message = server.createGame(authToken, gameName).message();
-        return message + "\n";
+        if (params.length >= 1) {
+            assertSignedIn();
+            var gameName = params[0];
+            var gameID = server.createGame(authToken, gameName).gameID();
+            return "Game created with ID: " + gameID + "\n";
+        }
+        throw new ResponseException(400, "Expected: <NAME>");
     }
 
 
