@@ -1,10 +1,6 @@
 package ui;
 
-import model.GameData;
-
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 
 import static ui.EscapeSequences.*;
 
@@ -12,7 +8,6 @@ public class Client {
     private final ServerFacade server;
     private State state = State.LOGGED_OUT;
     private String authToken;
-    private List<GameData> games;
     private final Board board = new Board();
 
     public Client (String serverUrl) {

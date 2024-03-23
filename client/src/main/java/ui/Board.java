@@ -1,7 +1,5 @@
 package ui;
 
-import java.util.Arrays;
-
 import static ui.EscapeSequences.*;
 
 public class Board {
