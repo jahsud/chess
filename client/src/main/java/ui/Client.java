@@ -67,6 +67,7 @@ public class Client {
     public String logout () throws ResponseException {
         assertSignedIn();
         server.logout(authToken);
+
         state = State.LOGGED_OUT;
         return "Logged out\n";
     }
