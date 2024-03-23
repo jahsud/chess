@@ -1,12 +1,14 @@
 package ui;
 
+import java.util.Arrays;
+
 import static ui.EscapeSequences.*;
 
 public class Board {
-    // Add chess piece and empty square definitions here
-    // For example: public static final String WHITE_PAWN = EscapeSequences.WHITE_PAWN;
+    int number = 0;
 
-    // Define the board with empty spaces and initial piece placements
+    private final String[] columns = new String[]{EMPTY, " a ", " b ", " c ", " d ", "\u200A e ", " f ", " \u200Ag ", " \u200Ah ", EMPTY};
+    private final String[] rows = new String[]{" 1 \u2005", " 2 \u200A", " 3 ", " 4 ", " 5 ", " 6 ", " 7 \u200A", " 8 "};
     private final String[][] board = new String[][]{
             {WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK},
             {WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN},
@@ -15,29 +17,67 @@ public class Board {
             {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
             {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
             {BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN},
-            {BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}
+            {BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK},
     };
 
     public void draw () {
-        System.out.println(ERASE_SCREEN);
-        System.out.println("  a b c d e f g h");  // Column labels
-        drawBoardFromPerspective('w');  // White's perspective
-        System.out.println("\n");
-        drawBoardFromPerspective('b');  // Black's perspective
-        System.out.println("  h g f e d c b a");  // Column labels reversed for Black's perspective
-    }
+        System.out.println(ERASE_SCREEN + RESET_BG_COLOR + SET_TEXT_COLOR_WHITE);
 
-    private void drawBoardFromPerspective (char perspective) {
-        for (int i = 0; i < 8; i++) {
-            int row = perspective == 'w' ? 8 - i : i + 1;  // Row numbers
-            System.out.print(row + " ");  // Print row label
-
-            for (int j = 0; j < 8; j++) {
-                String square = board[perspective == 'w' ? i : 7 - i][j];
-                System.out.print(square + " ");  // Print the piece or empty square
-            }
-
-            System.out.println(row);  // Print row label again
+        // Reverse board
+        for (int i = columns.length - 1; i >= 0; i--) {
+            System.out.print(SPACE + columns[i] + SPACE);
         }
+        System.out.println();
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if (j == 0) {
+                    System.out.print(SPACE + rows[i] + SPACE);
+                }
+                if (number % 2 == 0) {
+                    System.out.print(SET_BG_COLOR_LIGHT_GREY + SPACE + board[i][j] + SPACE + RESET_BG_COLOR);
+                } else {
+                    System.out.print(SET_BG_COLOR_DARK_GREY + SPACE + board[i][j] + SPACE + RESET_BG_COLOR);
+                }
+                if (j == board[i].length - 1) {
+                    System.out.print(SPACE + rows[i] + SPACE);
+                }
+                number++;
+            }
+            System.out.println();
+            number++;
+        }
+        for (int i = columns.length - 1; i >= 0; i--) {
+            System.out.print(SPACE + columns[i] + SPACE);
+        }
+        System.out.println("\n");
+
+        // Forward board
+        for (String column : columns) {
+            System.out.print(SPACE + column + SPACE);
+        }
+        System.out.println();
+        for (int i = board.length - 1; i >= 0; i--) {
+            for (int j = board[i].length - 1; j >= 0; j--) {
+                if (j == board[i].length - 1) {
+                    System.out.print(SPACE + rows[i] + SPACE);
+                }
+                if (number % 2 == 0) {
+                    System.out.print(SET_BG_COLOR_LIGHT_GREY + SPACE + board[i][j] + SPACE + RESET_BG_COLOR);
+                } else {
+                    System.out.print(SET_BG_COLOR_DARK_GREY + SPACE + board[i][j] + SPACE + RESET_BG_COLOR);
+                }
+                if (j == 0) {
+                    System.out.print(SPACE + rows[i] + SPACE);
+                }
+                number++;
+            }
+            System.out.println();
+            number++;
+        }
+        for (String column : columns) {
+            System.out.print(SPACE + column + SPACE);
+        }
+        System.out.println();
     }
+
 }

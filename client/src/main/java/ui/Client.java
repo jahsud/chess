@@ -4,6 +4,7 @@ import model.GameData;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static ui.EscapeSequences.*;
 
@@ -85,10 +86,10 @@ public class Client {
         if (params.length >= 1) {
             assertSignedIn();
             var gameID = params[0];
-            var playerColor = (params.length > 1) ? params[1] : "";
+            var playerColor = (params.length >= 2 && (params[1].equals("white") || params[1].equals("black"))) ? params[1].toUpperCase() : null;
             server.joinGame(authToken, playerColor, Integer.valueOf(gameID));
             board.draw();
-            return "Joined game " + gameID + " \n";
+            return "Joined game " + gameID + " as " + (playerColor != null ? playerColor : "an observer") + "\n";
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK|<empty>]\n");
     }
@@ -98,7 +99,7 @@ public class Client {
         var games = server.listGames(authToken).games();
         var result = new StringBuilder();
         for (var game : games) {
-            result.append(game.gameID()).append(game.gameName()).append(game.whiteUsername()).append(game.blackUsername()).append("\n");
+            result.append("Game ID: ").append(game.gameID()).append("\t| Game name: ").append(game.gameName()).append("\t| White player: ").append(game.whiteUsername()).append("\t| Black player: ").append(game.blackUsername()).append("\n");
         }
         return result.toString();
     }
@@ -125,7 +126,7 @@ public class Client {
     }
 
     public String quit () {
-        return "Goodbye!\n";
+        return "Goodbye!";
     }
 
     public String help () {

@@ -12,11 +12,11 @@ public class Repl {
     }
 
     public void run () {
-        System.out.println("♕ Welcome to 240 Chess. Type 'help' to get started. ♕");
+        System.out.println(RESET_BG_COLOR + "♕ Welcome to 240 Chess. Type 'help' to get started. ♕");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("quit")) {
+        while (!result.equals("Goodbye!")) {
             printPrompt();
             String input = scanner.nextLine();
 
