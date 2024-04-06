@@ -1,17 +1,25 @@
 package ui;
 
+import websocket.NotificationHandler;
+import websocket.WebSocketFacade;
+
 import java.util.Arrays;
 
 import static ui.EscapeSequences.*;
 
 public class Client {
     private final ServerFacade server;
+    private final String serverUrl;
+    private final NotificationHandler notificationHandler;
+    private WebSocketFacade webSocket;
     private State state = State.LOGGED_OUT;
     private String authToken;
     private final Board board = new Board();
 
-    public Client (String serverUrl) {
+    public Client (String serverUrl, NotificationHandler notificationHandler) {
         server = new ServerFacade(serverUrl);
+        this.serverUrl = serverUrl;
+        this.notificationHandler = notificationHandler;
     }
 
     public String processInput (String input) {
