@@ -5,8 +5,8 @@ import static ui.EscapeSequences.*;
 public class Board {
     int number = 0;
 
-    private final String[] columns = new String[]{EMPTY, " a ", " b ", " c ", " d ", "\u200A e ", " f ", " \u200Ag ", " \u200Ah ", EMPTY};
-    private final String[] rows = new String[]{" 1 \u2005", " 2 \u200A", " 3 ", " 4 ", " 5 ", " 6 ", " 7 \u200A", " 8 "};
+    private final String[] columns = new String[]{SPACE, "a", "b", "c", "d", "e", "f", "g", "h", SPACE};
+    private final String[] rows = new String[]{"1", "2", "3", "4", "5", "6", "7", "8"};
     private final String[][] board = new String[][]{
             {WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK},
             {WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN},
@@ -18,7 +18,7 @@ public class Board {
             {BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK},
     };
 
-    public void draw () {
+    public void draw() {
         System.out.println(ERASE_SCREEN + RESET_BG_COLOR + SET_TEXT_COLOR_WHITE);
 
         // Reverse board
@@ -32,9 +32,9 @@ public class Board {
                     System.out.print(SPACE + rows[i] + SPACE);
                 }
                 if (number % 2 == 0) {
-                    System.out.print(SET_BG_COLOR_LIGHT_GREY + SPACE + board[i][j] + SPACE + RESET_BG_COLOR);
+                    System.out.print(SET_BG_COLOR_LIGHT_GREY + board[i][j] + RESET_BG_COLOR);
                 } else {
-                    System.out.print(SET_BG_COLOR_DARK_GREY + SPACE + board[i][j] + SPACE + RESET_BG_COLOR);
+                    System.out.print(SET_BG_COLOR_DARK_GREY + board[i][j] + RESET_BG_COLOR);
                 }
                 if (j == board[i].length - 1) {
                     System.out.print(SPACE + rows[i] + SPACE);
@@ -60,9 +60,9 @@ public class Board {
                     System.out.print(SPACE + rows[i] + SPACE);
                 }
                 if (number % 2 == 0) {
-                    System.out.print(SET_BG_COLOR_LIGHT_GREY + SPACE + board[i][j] + SPACE + RESET_BG_COLOR);
+                    System.out.print(SET_BG_COLOR_LIGHT_GREY + board[i][j] + RESET_BG_COLOR);
                 } else {
-                    System.out.print(SET_BG_COLOR_DARK_GREY + SPACE + board[i][j] + SPACE + RESET_BG_COLOR);
+                    System.out.print(SET_BG_COLOR_DARK_GREY + board[i][j] + RESET_BG_COLOR);
                 }
                 if (j == 0) {
                     System.out.print(SPACE + rows[i] + SPACE);
