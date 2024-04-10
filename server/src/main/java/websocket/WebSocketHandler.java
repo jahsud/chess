@@ -40,8 +40,8 @@ public class WebSocketHandler {
         //session.getRemote().sendString(new Gson().toJson(loadGame));
 
         UserData user = userDAO.getUser(command.getAuthString());
-        var message = String.format("Player %s has joined the game as a %s player", user, command.getPlayerColor());
-        var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        var message = String.format("Player %s has joined the game as a %s player", user, command.playerColor);
+        var notification = new Notification(message);
 
         connections.broadcast(command.getAuthString(), notification);
     }

@@ -15,7 +15,7 @@ public class WebSocketFacade extends Endpoint {
     Session session;
     NotificationHandler notificationHandler;
 
-    public WebSocketFacade (String url, NotificationHandler notificationHandler) throws ResponseException {
+    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
         try {
             url = url.replace("http", "ws");
             URI socketUri = new URI(url + "/connect");
@@ -26,7 +26,7 @@ public class WebSocketFacade extends Endpoint {
 
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
-                public void onMessage (String message) {
+                public void onMessage(String message) {
                     Notification notification = new Gson().fromJson(message, Notification.class);
                     notificationHandler.notify(notification);
                 }
@@ -37,21 +37,21 @@ public class WebSocketFacade extends Endpoint {
     }
 
     @Override
-    public void onOpen (Session session, EndpointConfig endpointConfig) {
+    public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void joinObserver (String authToken, Integer integer) throws ResponseException {
+    public void joinObserver(String authToken, Integer integer) throws ResponseException {
         try {
-            var command = new JoinObserver(UserGameCommand.CommandType.JOIN_OBSERVER, authToken, integer);
+            var command = new JoinObserver(authToken, integer);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
         }
     }
 
-    public void joinPlayer (String authToken, Integer integer, String playerColor) throws ResponseException {
+    public void joinPlayer(String authToken, Integer integer, String playerColor) throws ResponseException {
         try {
-            var command = new JoinPlayer(UserGameCommand.CommandType.JOIN_PLAYER, authToken, integer, playerColor);
+            var command = new JoinPlayer(authToken, integer, playerColor);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
