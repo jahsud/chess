@@ -4,6 +4,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import dataAccess.*;
+import model.AuthData;
 import model.UserData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -17,8 +18,9 @@ import java.io.IOException;
 public class WebSocketHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
-    GameDAO gameDAO = new MySqlGameDAO();
-    UserDAO userDAO = new MySqlUserDAO();
+    MySqlGameDAO gameDAO = new MySqlGameDAO();
+    MySqlUserDAO userDAO = new MySqlUserDAO();
+    MySqlAuthDAO authDAO = new MySqlAuthDAO();
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException, DataAccessException {
@@ -35,16 +37,16 @@ public class WebSocketHandler {
     private void joinPlayer(JoinPlayer command, Session session) throws IOException, DataAccessException {
         connections.addConnection(command.getAuthString(), session);
 
-        //ChessGame game = gameDAO.getGame(command.getGameID()).game();
-        //var loadGame = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, game);
+        //ChessGame game = gameDAO.getGame(command.gameID).game();
+        //var loadGame = new LoadGame(game);
         //session.getRemote().sendString(new Gson().toJson(loadGame));
 
-        UserData user = userDAO.getUser(command.getAuthString());
-        //var message = String.format("Player %s has joined the game as a %s player", user.username(), command.playerColor);
-        var message = String.format("%s player has joined the game", command.playerColor);
+        AuthData auth = authDAO.getAuth(command.getAuthString());
+        var message = String.format("%s has joined the game as a %s player", auth.username(), command.playerColor);
         var notification = new Notification(message);
 
-        connections.broadcast(command.getAuthString(), notification);
+        connections.broadcastNotification(command.getAuthString(), notification);
+        //connections.broadcastGame()
     }
 
     private void joinObserver(JoinObserver command, Session session) {

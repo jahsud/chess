@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessGame;
 import org.eclipse.jetty.websocket.api.Session;
 import webSocketMessages.serverMessages.*;
 
@@ -19,13 +20,14 @@ public class ConnectionManager {
         connections.remove(authToken);
     }
 
-    public void broadcast(String excludeAuthToken, Notification message) throws IOException {
+    public void broadcastNotification(String excludeAuthToken, Notification message) throws IOException {
         System.out.println("\nBroadcasting message: " + message.message);
         var removeList = new ArrayList<Connection>();
         for (var connection : connections.values()) {
             System.out.println("Checking connection: " + connection.authToken);
             if (connection.session.isOpen()) {
                 System.out.println("Connection is open");
+                connection.send(message.message);
                 if (!connection.authToken.equals(excludeAuthToken)) {
                     System.out.println("Sending message to " + connection.authToken);
                     connection.send(message.message);
@@ -39,4 +41,27 @@ public class ConnectionManager {
             connections.remove(connection.authToken);
         }
     }
+
+//    public void broadcastGame(String excludeAuthToken, ChessGame game) throws IOException {
+//        System.out.println("\nBroadcasting message: " + message.message);
+//        var removeList = new ArrayList<Connection>();
+//        for (var connection : connections.values()) {
+//            System.out.println("Checking connection: " + connection.authToken);
+//            if (connection.session.isOpen()) {
+//                System.out.println("Connection is open");
+//                connection.send(message.message);
+//                if (!connection.authToken.equals(excludeAuthToken)) {
+//                    System.out.println("Sending message to " + connection.authToken);
+//                    connection.send(message.message);
+//                } else {
+//                    System.out.println("Excluding " + connection.authToken);
+//                    removeList.add(connection);
+//                }
+//            }
+//        }
+//        for (var connection : removeList) {
+//            connections.remove(connection.authToken);
+//        }
+//    }
+
 }
