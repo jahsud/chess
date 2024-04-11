@@ -11,14 +11,16 @@ import spark.*;
 import java.util.Map;
 
 import model.GameData;
+import websocket.WebSocketHandler;
 
 public class Server {
 
     private final UserService userService;
     private final GameService gameService;
+    private final WebSocketHandler webSocketHandler;
     private final Gson gson = new Gson();
 
-    public Server () {
+    public Server() {
         // MemoryUserDAO userDAO = new MemoryUserDAO();
         // MemoryGameDAO gameDAO = new MemoryGameDAO();
         // MemoryAuthDAO authDAO = new MemoryAuthDAO();
@@ -29,11 +31,15 @@ public class Server {
 
         this.userService = new UserService(userDAO, authDAO);
         this.gameService = new GameService(gameDAO, authDAO);
+
+        this.webSocketHandler = new WebSocketHandler();
     }
 
-    public int run (int desiredPort) {
+    public int run(int desiredPort) {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/connect", webSocketHandler);
 
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
@@ -49,7 +55,7 @@ public class Server {
         return Spark.port();
     }
 
-    private Object register (Request req, Response res) {
+    private Object register(Request req, Response res) {
         RegisterRequest registerRequest = gson.fromJson(req.body(), RegisterRequest.class);
         try {
             RegisterResult authData = userService.register(registerRequest);
@@ -67,7 +73,7 @@ public class Server {
         }
     }
 
-    private Object login (Request req, Response res) {
+    private Object login(Request req, Response res) {
         LoginRequest loginRequest = gson.fromJson(req.body(), LoginRequest.class);
         try {
             LoginResult authData = userService.login(loginRequest);
@@ -82,7 +88,7 @@ public class Server {
         }
     }
 
-    private Object logout (Request req, Response res) {
+    private Object logout(Request req, Response res) {
         String authToken = req.headers("Authorization");
         try {
             userService.logout(new LogoutRequest(authToken));
@@ -100,7 +106,7 @@ public class Server {
         }
     }
 
-    private Object listGames (Request req, Response res) {
+    private Object listGames(Request req, Response res) {
         String authToken = req.headers("Authorization");
         try {
             var games = gameService.listGames(new ListGamesRequest(authToken));
@@ -116,7 +122,7 @@ public class Server {
         }
     }
 
-    private Object createGame (Request req, Response res) {
+    private Object createGame(Request req, Response res) {
         String authToken = req.headers("Authorization");
         try {
             GameData gameData = gson.fromJson(req.body(), GameData.class);
@@ -135,7 +141,7 @@ public class Server {
         }
     }
 
-    private Object joinGame (Request req, Response res) {
+    private Object joinGame(Request req, Response res) {
         String authToken = req.headers("Authorization");
         JoinGameData joinData = gson.fromJson(req.body(), JoinGameData.class);
         try {
@@ -157,7 +163,7 @@ public class Server {
         }
     }
 
-    private Object clear (Request req, Response res) {
+    private Object clear(Request req, Response res) {
         try {
             userService.clear();
             gameService.clear();
@@ -170,12 +176,12 @@ public class Server {
     }
 
 
-    private void handleException (Exception ex, Request req, Response res) {
+    private void handleException(Exception ex, Request req, Response res) {
         res.status(500); // Internal Server Error
         res.body(gson.toJson(Map.of("message", "An error occurred: " + ex.getMessage())));
     }
 
-    public void stop () {
+    public void stop() {
         Spark.stop();
         Spark.awaitStop();
     }

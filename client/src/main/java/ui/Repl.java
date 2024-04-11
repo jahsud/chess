@@ -1,6 +1,5 @@
 package ui;
 
-
 import webSocketMessages.serverMessages.Notification;
 import websocket.NotificationHandler;
 
@@ -11,11 +10,11 @@ import static ui.EscapeSequences.*;
 public class Repl implements NotificationHandler {
     private final Client client;
 
-    public Repl (String serverUrl) {
+    public Repl(String serverUrl) {
         client = new Client(serverUrl, this);
     }
 
-    public void run () {
+    public void run() {
         System.out.println(RESET_BG_COLOR + "♕ Welcome to 240 Chess. Type 'help' to get started. ♕");
 
         Scanner scanner = new Scanner(System.in);
@@ -36,12 +35,12 @@ public class Repl implements NotificationHandler {
     }
 
     @Override
-    public void notify (Notification notification) {
-        System.out.print(SET_TEXT_COLOR_RED + notification.getMessage() + "\n" + SET_TEXT_COLOR_GREEN);
+    public void notify(Notification notification) {
+        System.out.print(SET_TEXT_COLOR_RED + notification.message + "\n" + SET_TEXT_COLOR_GREEN);
         printPrompt();
     }
 
-    private void printPrompt () {
+    private void printPrompt() {
         System.out.print("\n" + SET_TEXT_COLOR_WHITE + "[" + client.getState() + "]" + " >>> " + SET_TEXT_COLOR_GREEN);
     }
 }
