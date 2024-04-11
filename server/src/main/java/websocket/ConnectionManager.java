@@ -20,12 +20,17 @@ public class ConnectionManager {
     }
 
     public void broadcast(String excludeAuthToken, Notification message) throws IOException {
+        System.out.println("\nBroadcasting message: " + message.message);
         var removeList = new ArrayList<Connection>();
         for (var connection : connections.values()) {
+            System.out.println("Checking connection: " + connection.authToken);
             if (connection.session.isOpen()) {
+                System.out.println("Connection is open");
                 if (!connection.authToken.equals(excludeAuthToken)) {
-                    connection.send(message.toString());
+                    System.out.println("Sending message to " + connection.authToken);
+                    connection.send(message.message);
                 } else {
+                    System.out.println("Excluding " + connection.authToken);
                     removeList.add(connection);
                 }
             }
