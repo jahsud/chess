@@ -21,18 +21,18 @@ public class WebSocketHandler {
     UserDAO userDAO = new MySqlUserDAO();
 
     @OnWebSocketMessage
-    public void onMessage (Session session, String message) throws IOException, DataAccessException {
+    public void onMessage(Session session, String message) throws IOException, DataAccessException {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
-            case JOIN_PLAYER -> joinPlayer((JoinPlayer) command, session);
-            case JOIN_OBSERVER -> joinObserver((JoinObserver) command, session);
-            case MAKE_MOVE -> makeMove((MakeMove) command, session);
-            case LEAVE -> leave((Leave) command, session);
-            case RESIGN -> resign((Resign) command, session);
+            case JOIN_PLAYER -> joinPlayer(new Gson().fromJson(message, JoinPlayer.class), session);
+            case JOIN_OBSERVER -> joinObserver(new Gson().fromJson(message, JoinObserver.class), session);
+            case MAKE_MOVE -> makeMove(new Gson().fromJson(message, MakeMove.class), session);
+            case LEAVE -> leave(new Gson().fromJson(message, Leave.class), session);
+            case RESIGN -> resign(new Gson().fromJson(message, Resign.class), session);
         }
     }
 
-    private void joinPlayer (JoinPlayer command, Session session) throws IOException, DataAccessException {
+    private void joinPlayer(JoinPlayer command, Session session) throws IOException, DataAccessException {
         connections.addConnection(command.getAuthString(), session);
 
         //ChessGame game = gameDAO.getGame(command.getGameID()).game();
@@ -46,19 +46,19 @@ public class WebSocketHandler {
         connections.broadcast(command.getAuthString(), notification);
     }
 
-    private void joinObserver (JoinObserver command, Session session) {
+    private void joinObserver(JoinObserver command, Session session) {
 
     }
 
-    private void makeMove (MakeMove command, Session session) {
+    private void makeMove(MakeMove command, Session session) {
 
     }
 
-    private void leave (Leave command, Session session) {
+    private void leave(Leave command, Session session) {
 
     }
 
-    private void resign (Resign command, Session session) {
+    private void resign(Resign command, Session session) {
 
     }
 

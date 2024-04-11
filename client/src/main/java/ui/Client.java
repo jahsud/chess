@@ -9,17 +9,13 @@ import static ui.EscapeSequences.*;
 
 public class Client {
     private final ServerFacade server;
-    private final String serverUrl;
-    private final NotificationHandler notificationHandler;
-    private WebSocketFacade webSocket;
+    private final WebSocketFacade webSocket;
     private State state = State.LOGGED_OUT;
     private String authToken;
     private final Board board = new Board();
 
     public Client(String serverUrl, NotificationHandler notificationHandler) throws ResponseException {
         server = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
-        this.notificationHandler = notificationHandler;
         webSocket = new WebSocketFacade(serverUrl, notificationHandler);
     }
 
