@@ -12,7 +12,6 @@ public class Client {
     private final WebSocketFacade webSocket;
     private State state = State.LOGGED_OUT;
     private String authToken;
-    private final Board board = new Board();
 
     public Client(String serverUrl, NotificationHandler notificationHandler) throws ResponseException {
         server = new ServerFacade(serverUrl);
@@ -82,7 +81,6 @@ public class Client {
             var gameID = params[0];
             server.observe(authToken, Integer.valueOf(gameID));
             webSocket.joinObserver(authToken, Integer.valueOf(gameID));
-            board.draw();
             state = State.IN_GAME;
             return "Observing game " + gameID + "\n";
         }
@@ -96,7 +94,6 @@ public class Client {
             var playerColor = (params.length >= 2 && (params[1].equals("white") || params[1].equals("black"))) ? params[1].toUpperCase() : null;
             server.joinGame(authToken, playerColor, Integer.valueOf(gameID));
             webSocket.joinPlayer(authToken, Integer.valueOf(gameID), playerColor);
-            board.draw();
             state = State.IN_GAME;
             return "Joined game " + gameID + " as " + (playerColor != null ? playerColor : "an observer") + "\n";
         }
@@ -124,7 +121,7 @@ public class Client {
     }
 
     public String redraw() {
-        board.draw();
+
         return "";
     }
 
@@ -141,7 +138,6 @@ public class Client {
             var start = params[0];
             var end = params[2];
             //server.move(authToken, start, end);
-            board.draw();
             return "Moved from " + start + " to " + end + "\n";
         }
         throw new ResponseException(400, "Expected: <start> to <end>\n");
@@ -156,7 +152,6 @@ public class Client {
 
     public String highlight() {
         //server.highlight(authToken);
-        board.draw();
         return "";
     }
 
@@ -197,4 +192,11 @@ public class Client {
                     SET_TEXT_COLOR_BLUE + "help" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "with possible commands\n";
         }
     }
+
+    public boolean isNotificationExpected(String input) {
+        var tokens = input.toLowerCase().split(" ");
+        var cmd = (tokens.length > 0) ? tokens[0] : "help";
+        return cmd.equals("join") || cmd.equals("observe") || cmd.equals("move");
+    }
+
 }

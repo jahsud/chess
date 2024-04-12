@@ -35,7 +35,7 @@ public class WebSocketHandler {
     }
 
     private void joinPlayer(JoinPlayer command, Session session) throws IOException, DataAccessException {
-        connections.addConnection(command.getAuthString(), session);
+        connections.addConnection(command.getAuthString(), command.gameID, session);
 
         ChessGame game = gameDAO.getGame(command.gameID).game();
         if (game == null) {
@@ -47,8 +47,8 @@ public class WebSocketHandler {
         String message = String.format("%s has joined the game as a %s player", auth.username(), command.playerColor);
         Notification notification = new Notification(message);
 
-        connections.broadcastNotification(command.getAuthString(), notification);
         connections.broadcastGame(command.gameID, loadGame);
+        connections.broadcastNotification(command.getAuthString(), command.gameID, notification);
     }
 
     private void joinObserver(JoinObserver command, Session session) {

@@ -7,13 +7,14 @@ import webSocketMessages.serverMessages.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
 
-    public void addConnection(String authToken, Session session) {
-        var connection = new Connection(authToken, session);
+    public void addConnection(String authToken, Integer gameID, Session session) {
+        var connection = new Connection(authToken, gameID, session);
         connections.put(authToken, connection);
     }
 
@@ -21,7 +22,7 @@ public class ConnectionManager {
         connections.remove(authToken);
     }
 
-    public void broadcastNotification(String excludeAuthToken, Notification message) throws IOException {
+    public void broadcastNotification(String excludeAuthToken, Integer gameID, Notification message) throws IOException {
         for (var connection : connections.values()) {
             if (connection.session.isOpen()) {
                 if (!connection.authToken.equals(excludeAuthToken)) {
@@ -32,22 +33,12 @@ public class ConnectionManager {
     }
 
     public void broadcastGame(Integer gameID, LoadGame game) throws IOException {
-
-    }
-
-    public void broadcastError(String excludeAuthToken, String message) throws IOException {
-        var removeList = new ArrayList<Connection>();
         for (var connection : connections.values()) {
             if (connection.session.isOpen()) {
-                if (!connection.authToken.equals(excludeAuthToken)) {
-                    connection.send(message);
-                } else {
-                    removeList.add(connection);
+                if (Objects.equals(connection.gameID, gameID)) {
+                    connection.send(new Gson().toJson(game));
                 }
             }
-        }
-        for (var connection : removeList) {
-            connections.remove(connection.authToken);
         }
     }
 
