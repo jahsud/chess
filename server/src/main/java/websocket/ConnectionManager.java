@@ -1,6 +1,7 @@
 package websocket;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import webSocketMessages.serverMessages.*;
 
@@ -21,18 +22,26 @@ public class ConnectionManager {
     }
 
     public void broadcastNotification(String excludeAuthToken, Notification message) throws IOException {
-        System.out.println("\nBroadcasting message: " + message.message);
+        for (var connection : connections.values()) {
+            if (connection.session.isOpen()) {
+                if (!connection.authToken.equals(excludeAuthToken)) {
+                    connection.send(new Gson().toJson(message));
+                }
+            }
+        }
+    }
+
+    public void broadcastGame(Integer gameID, LoadGame game) throws IOException {
+
+    }
+
+    public void broadcastError(String excludeAuthToken, String message) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var connection : connections.values()) {
-            System.out.println("Checking connection: " + connection.authToken);
             if (connection.session.isOpen()) {
-                System.out.println("Connection is open");
-                connection.send(message.message);
                 if (!connection.authToken.equals(excludeAuthToken)) {
-                    System.out.println("Sending message to " + connection.authToken);
-                    connection.send(message.message);
+                    connection.send(message);
                 } else {
-                    System.out.println("Excluding " + connection.authToken);
                     removeList.add(connection);
                 }
             }
@@ -41,27 +50,5 @@ public class ConnectionManager {
             connections.remove(connection.authToken);
         }
     }
-
-//    public void broadcastGame(String excludeAuthToken, ChessGame game) throws IOException {
-//        System.out.println("\nBroadcasting message: " + message.message);
-//        var removeList = new ArrayList<Connection>();
-//        for (var connection : connections.values()) {
-//            System.out.println("Checking connection: " + connection.authToken);
-//            if (connection.session.isOpen()) {
-//                System.out.println("Connection is open");
-//                connection.send(message.message);
-//                if (!connection.authToken.equals(excludeAuthToken)) {
-//                    System.out.println("Sending message to " + connection.authToken);
-//                    connection.send(message.message);
-//                } else {
-//                    System.out.println("Excluding " + connection.authToken);
-//                    removeList.add(connection);
-//                }
-//            }
-//        }
-//        for (var connection : removeList) {
-//            connections.remove(connection.authToken);
-//        }
-//    }
 
 }
