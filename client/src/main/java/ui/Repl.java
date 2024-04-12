@@ -34,7 +34,14 @@ public class Repl implements NotificationHandler {
                 var msg = e.toString();
                 System.out.print(SET_TEXT_COLOR_RED + msg + "\n" + RESET_TEXT_COLOR);
             }
-            if (!client.isNotificationExpected(input)) {
+            if (client.isNotificationExpected(input)) {
+                try {
+                    Thread.sleep(100); // Wait for 5 seconds
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                printNotifications();
+            } else {
                 printPrompt();
             }
         }
@@ -50,13 +57,11 @@ public class Repl implements NotificationHandler {
     @Override
     public void load(LoadGame game) {
         notifications.append("\n").append(SET_TEXT_COLOR_YELLOW).append("this is the game").append("\n").append(SET_TEXT_COLOR_GREEN);
-        printNotifications();
     }
 
     @Override
     public void warn(Error errorMessage) {
         notifications.append("\n").append(SET_TEXT_COLOR_RED).append(errorMessage.errorMessage).append("Error: Invalid command").append(errorMessage.errorMessage).append(SET_TEXT_COLOR_GREEN);
-        printNotifications();
     }
 
     private void printNotifications() {
