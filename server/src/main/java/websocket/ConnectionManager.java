@@ -4,6 +4,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import webSocketMessages.serverMessages.*;
+import webSocketMessages.serverMessages.Error;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,4 +43,7 @@ public class ConnectionManager {
         }
     }
 
+    public void broadcastError(String authToken, Error error) throws IOException {
+        connections.get(authToken).send(new Gson().toJson(error));
+    }
 }

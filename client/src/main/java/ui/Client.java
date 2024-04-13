@@ -37,6 +37,7 @@ public class Client {
                 case "highlight" -> highlight();
                 case "logout" -> logout();
                 case "quit" -> quit();
+                case "clear" -> clear();
                 default -> help();
             };
         } catch (ResponseException e) {
@@ -163,6 +164,11 @@ public class Client {
         if (state == State.LOGGED_OUT) {
             throw new ResponseException(400, "You must login\n");
         }
+    }
+
+    private String clear() throws ResponseException {
+        server.clear();
+        return "";
     }
 
     public String quit() {
