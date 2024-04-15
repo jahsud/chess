@@ -10,13 +10,13 @@ public class Board {
     private final String[] columns = new String[]{SPACE, "a", "b", "c", "d", "e", "f", "g", "h", SPACE};
     private final String[] rows = new String[]{"1", "2", "3", "4", "5", "6", "7", "8"};
 
-    public void draw(ChessGame game) {
+    public void draw(ChessGame game, ChessGame.TeamColor teamColor) {
 
         ChessBoard board = game.getBoard();
 
         ChessGame.TeamColor teamTurn = game.getTeamTurn();
 
-        if (teamTurn == ChessGame.TeamColor.WHITE) {
+        if (teamColor == ChessGame.TeamColor.WHITE) {
             drawWhites(board);
         } else {
             drawBlacks(board);
@@ -32,19 +32,19 @@ public class Board {
         }
         System.out.println();
 
-        for (int i = 0; i < 8; i++) {
-            for (int j = 9; j >= 0; j--) {
-                if (j == 9) {
-                    System.out.print(SPACE + rows[i] + SPACE);
-                } else if (j > 0) {
-                    ChessPiece chessPiece = board.getPiece(new ChessPosition(i + 1, j));
+        for (int i = 8; i >= 1; i--) {
+            for (int j = 0; j <= 9; j++) {
+                if (j == 0) {
+                    System.out.print(SPACE + rows[i - 1] + SPACE);
+                } else if (j < 9) {
+                    ChessPiece chessPiece = board.getPiece(new ChessPosition(i, j));
                     if (number % 2 == 0) {
                         drawPiece(chessPiece, SET_BG_COLOR_LIGHT_GREY);
                     } else {
                         drawPiece(chessPiece, SET_BG_COLOR_DARK_GREY);
                     }
                 } else {
-                    System.out.print(SPACE + rows[i] + SPACE);
+                    System.out.print(SPACE + rows[i - 1] + SPACE);
                 }
                 number++;
             }
@@ -62,24 +62,24 @@ public class Board {
     private void drawBlacks(ChessBoard board) {
         System.out.println(ERASE_SCREEN + RESET_BG_COLOR + SET_TEXT_COLOR_WHITE);
 
-        for (String column : columns) {
-            System.out.print(SPACE + column + SPACE);
+        for (int i = columns.length - 1; i >= 0; i--) {
+            System.out.print(SPACE + columns[i] + SPACE);
         }
         System.out.println();
 
-        for (int i = 7; i >= 0; i--) {
-            for (int j = 0; j < 10; j++) {
-                if (j == 0) {
-                    System.out.print(SPACE + rows[i] + SPACE);
-                } else if (j < 9) {
-                    ChessPiece chessPiece = board.getPiece(new ChessPosition(i + 1, j));
+        for (int i = 1; i < 9; i++) {
+            for (int j = 9; j >= 0; j--) {
+                if (j == 9) {
+                    System.out.print(SPACE + rows[i - 1] + SPACE);
+                } else if (j > 0) {
+                    ChessPiece chessPiece = board.getPiece(new ChessPosition(i, j));
                     if (number % 2 == 0) {
                         drawPiece(chessPiece, SET_BG_COLOR_LIGHT_GREY);
                     } else {
                         drawPiece(chessPiece, SET_BG_COLOR_DARK_GREY);
                     }
                 } else {
-                    System.out.print(SPACE + rows[i] + SPACE);
+                    System.out.print(SPACE + rows[i - 1] + SPACE);
                 }
                 number++;
             }
@@ -87,8 +87,8 @@ public class Board {
             number++;
         }
 
-        for (String column : columns) {
-            System.out.print(SPACE + column + SPACE);
+        for (int i = columns.length - 1; i >= 0; i--) {
+            System.out.print(SPACE + columns[i] + SPACE);
         }
         System.out.println();
 

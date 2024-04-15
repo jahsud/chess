@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import webSocketMessages.serverMessages.*;
 import webSocketMessages.serverMessages.Error;
 import websocket.NotificationHandler;
@@ -31,9 +32,10 @@ public class Repl implements NotificationHandler {
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(SET_TEXT_COLOR_RED + msg + "\n" + RESET_TEXT_COLOR);
-            }
-            if (!client.isNotificationExpected(input)) {
-                printPrompt();
+            } finally {
+                if (!client.isNotificationExpected(input)) {
+                    printPrompt();
+                }
             }
         }
         System.out.println();
@@ -47,13 +49,14 @@ public class Repl implements NotificationHandler {
 
     @Override
     public void load(LoadGame loadGame) {
-        board.draw(loadGame.game);
+        ChessGame.TeamColor teamColor = client.getTeamColor();
+        board.draw(loadGame.game, teamColor);
         printPrompt();
     }
 
     @Override
     public void warn(Error error) {
-        System.out.print("\n" + SET_TEXT_COLOR_RED + "Error: Invalid command" + error.errorMessage + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + SET_TEXT_COLOR_RED + "Error: " + error.errorMessage + SET_TEXT_COLOR_GREEN);
         printPrompt();
     }
 

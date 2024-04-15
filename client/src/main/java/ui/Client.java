@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import websocket.NotificationHandler;
 import websocket.WebSocketFacade;
 
@@ -12,6 +13,7 @@ public class Client {
     private final WebSocketFacade webSocket;
     private State state = State.LOGGED_OUT;
     private String authToken;
+    private ChessGame.TeamColor teamColor;
 
     public Client(String serverUrl, NotificationHandler notificationHandler) throws ResponseException {
         server = new ServerFacade(serverUrl);
@@ -93,10 +95,15 @@ public class Client {
             assertSignedIn();
             var gameID = params[0];
             var playerColor = (params.length >= 2 && (params[1].equals("white") || params[1].equals("black"))) ? params[1].toUpperCase() : null;
-            server.joinGame(authToken, playerColor, Integer.valueOf(gameID));
-            webSocket.joinPlayer(authToken, Integer.valueOf(gameID), playerColor);
-            state = State.IN_GAME;
-            return "Joined game " + gameID + " as " + (playerColor != null ? playerColor : "an observer") + "\n";
+            teamColor = playerColor != null ? ChessGame.TeamColor.valueOf(playerColor) : null;
+            if (playerColor != null) {
+                server.joinGame(authToken, playerColor, Integer.valueOf(gameID));
+                webSocket.joinPlayer(authToken, Integer.valueOf(gameID), playerColor);
+                state = State.IN_GAME;
+                return "Joined game " + gameID + " in the  " + playerColor + " team\n";
+            }
+            webSocket.joinPlayer(authToken, Integer.valueOf(gameID), null);
+            return "";
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK|<empty>]\n");
     }
@@ -158,6 +165,10 @@ public class Client {
 
     public State getState() {
         return state;
+    }
+
+    public ChessGame.TeamColor getTeamColor() {
+        return teamColor;
     }
 
     private void assertSignedIn() throws ResponseException {

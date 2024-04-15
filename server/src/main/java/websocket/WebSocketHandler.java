@@ -40,7 +40,9 @@ public class WebSocketHandler {
             connections.addConnection(command.getAuthString(), command.gameID, session);
 
             if (command.playerColor == null) {
-                throw new DataAccessException("Player color must be specified. Or you can type \"observe <ID>\" to join as an observer.");
+                throw new DataAccessException("Proper player color must be specified (WHITE/BLACK). Or type \"observe <ID>\" to join as an observer.\n");
+            } else if (command.gameID == null) {
+                throw new DataAccessException("Game ID must be specified.\n");
             } else {
                 ChessGame game = gameDAO.getGame(command.gameID).game();
                 if (game == null) {
@@ -55,6 +57,7 @@ public class WebSocketHandler {
                 session.getRemote().sendString(new Gson().toJson(loadGame));
                 connections.broadcast(command.getAuthString(), command.gameID, notification);
             }
+
         } catch (DataAccessException e) {
             Error error = new Error(e.getMessage());
             session.getRemote().sendString(new Gson().toJson(error));
