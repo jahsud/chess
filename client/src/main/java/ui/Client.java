@@ -1,6 +1,9 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import websocket.NotificationHandler;
 import websocket.WebSocketFacade;
 
@@ -14,6 +17,7 @@ public class Client {
     private State state = State.LOGGED_OUT;
     private String authToken;
     private ChessGame.TeamColor teamColor;
+    private Integer gameID;
 
     public Client(String serverUrl, NotificationHandler notificationHandler) throws ResponseException {
         server = new ServerFacade(serverUrl);
@@ -81,9 +85,9 @@ public class Client {
     public String observe(String... params) throws ResponseException {
         if (params.length >= 1) {
             assertSignedIn();
-            var gameID = params[0];
-            server.observe(authToken, Integer.valueOf(gameID));
-            webSocket.joinObserver(authToken, Integer.valueOf(gameID));
+            gameID = Integer.valueOf(params[0]);
+            server.observe(authToken, gameID);
+            webSocket.joinObserver(authToken, gameID);
             state = State.IN_GAME;
             return "Observing game " + gameID + "\n";
         }
@@ -93,16 +97,16 @@ public class Client {
     public String join(String... params) throws ResponseException {
         if (params.length >= 1) {
             assertSignedIn();
-            var gameID = params[0];
+            gameID = Integer.valueOf(params[0]);
             var playerColor = (params.length >= 2 && (params[1].equals("white") || params[1].equals("black"))) ? params[1].toUpperCase() : null;
             teamColor = playerColor != null ? ChessGame.TeamColor.valueOf(playerColor) : null;
             if (playerColor != null) {
-                server.joinGame(authToken, playerColor, Integer.valueOf(gameID));
-                webSocket.joinPlayer(authToken, Integer.valueOf(gameID), playerColor);
+                server.joinGame(authToken, playerColor, gameID);
+                webSocket.joinPlayer(authToken, gameID, playerColor);
                 state = State.IN_GAME;
                 return "Joined game " + gameID + " in the  " + playerColor + " team\n";
             }
-            webSocket.joinPlayer(authToken, Integer.valueOf(gameID), null);
+            webSocket.joinPlayer(authToken, gameID, null);
             return "";
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK|<empty>]\n");
@@ -135,9 +139,9 @@ public class Client {
 
     public String leave() throws ResponseException {
         assertSignedIn();
-        //server.leaveGame(authToken);
+        webSocket.leave(authToken, gameID);
         state = State.LOGGED_IN;
-        return "Left game\n";
+        return "Left game " + gameID + "\n";
     }
 
     public String move(String... params) throws ResponseException {
@@ -145,7 +149,9 @@ public class Client {
         if (params.length >= 2) {
             var start = params[0];
             var end = params[2];
-            //server.move(authToken, start, end);
+
+            ChessMove move = new ChessMove(null);
+            webSocket.move(authToken, gameID, start, end);
             return "Moved from " + start + " to " + end + "\n";
         }
         throw new ResponseException(400, "Expected: <start> to <end>\n");
