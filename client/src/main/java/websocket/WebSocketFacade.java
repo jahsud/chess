@@ -35,7 +35,7 @@ public class WebSocketFacade extends Endpoint {
                         case NOTIFICATION ->
                                 notificationHandler.notify(new Gson().fromJson(message, Notification.class));
                         case LOAD_GAME -> notificationHandler.load(new Gson().fromJson(message, LoadGame.class));
-                        default -> notificationHandler.warn(new Gson().fromJson(message, Error.class));
+                        case ERROR -> notificationHandler.warn(new Gson().fromJson(message, Error.class));
                     }
                 }
             });

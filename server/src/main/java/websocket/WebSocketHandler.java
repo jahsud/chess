@@ -39,21 +39,25 @@ public class WebSocketHandler {
         try {
             connections.addConnection(command.getAuthString(), command.gameID, session);
 
-            ChessGame game = gameDAO.getGame(command.gameID).game();
-            if (game == null) {
-                game = new ChessGame();
+            if (command.playerColor == null) {
+                throw new DataAccessException("Player color must be specified. Or you can type \"observe <ID>\" to join as an observer.");
+            } else {
+                ChessGame game = gameDAO.getGame(command.gameID).game();
+                if (game == null) {
+                    game = new ChessGame();
+                }
+                LoadGame loadGame = new LoadGame(game);
+
+                AuthData auth = authDAO.getAuth(command.getAuthString());
+                String message = String.format("Player %s has joined the game for the %s team", auth.username(), command.playerColor);
+                Notification notification = new Notification(message);
+
+                session.getRemote().sendString(new Gson().toJson(loadGame));
+                connections.broadcast(command.getAuthString(), command.gameID, notification);
             }
-            LoadGame loadGame = new LoadGame(game);
-
-            AuthData auth = authDAO.getAuth(command.getAuthString());
-            String message = String.format("%s has joined the game as a %s player", auth.username(), command.playerColor);
-            Notification notification = new Notification(message);
-
-            connections.broadcastGame(command.gameID, loadGame);
-            connections.broadcastNotification(command.getAuthString(), command.gameID, notification);
         } catch (DataAccessException e) {
             Error error = new Error(e.getMessage());
-            connections.broadcastError(command.getAuthString(), error);
+            session.getRemote().sendString(new Gson().toJson(error));
         }
     }
 
