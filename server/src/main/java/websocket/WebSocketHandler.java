@@ -54,10 +54,16 @@ public class WebSocketHandler {
 
             if (game == null) {
                 throw new DataAccessException("Game does not exist.\n");
+            } else if (game.game() == null) {
+                throw new DataAccessException("Game has not started yet.\n");
             } else if (auth.authToken() == null) {
                 throw new DataAccessException("Invalid auth token.\n");
             } else if (user.username() == null) {
                 throw new DataAccessException("User does not exist.\n");
+            } else if (game.whiteUsername() != null && command.playerColor.equals("WHITE")) {
+                throw new DataAccessException("White player is already taken.\n");
+            } else if (game.blackUsername() != null && command.playerColor.equals("BLACK")) {
+                throw new DataAccessException("Black player is already taken.\n");
             } else {
 
                 LoadGame loadGame = new LoadGame(game.game());
@@ -71,15 +77,11 @@ public class WebSocketHandler {
 
         } catch (DataAccessException | IOException e) {
             Error error = new Error(e.getMessage());
-            try {
-                session.getRemote().sendString(new Gson().toJson(error));
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            session.getRemote().sendString(new Gson().toJson(error));
         }
     }
 
-    private void joinObserver(JoinObserver command, Session session) {
+    private void joinObserver(JoinObserver command, Session session) throws IOException {
         try {
             connections.addConnection(command.getAuthString(), command.gameID, session);
 
@@ -112,15 +114,11 @@ public class WebSocketHandler {
 
         } catch (DataAccessException | IOException e) {
             Error error = new Error(e.getMessage());
-            try {
-                session.getRemote().sendString(new Gson().toJson(error));
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            session.getRemote().sendString(new Gson().toJson(error));
         }
     }
 
-    private void makeMove(MakeMove command, Session session) {
+    private void makeMove(MakeMove command, Session session) throws IOException {
         try {
 
             if (command.getAuthString() == null) {
@@ -161,15 +159,11 @@ public class WebSocketHandler {
 
         } catch (DataAccessException | IOException | InvalidMoveException e) {
             Error error = new Error(e.getMessage());
-            try {
-                session.getRemote().sendString(new Gson().toJson(error));
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            session.getRemote().sendString(new Gson().toJson(error));
         }
     }
 
-    private void leave(Leave command, Session session) {
+    private void leave(Leave command, Session session) throws IOException {
         try {
 
             if (command.gameID == null) {
@@ -185,11 +179,7 @@ public class WebSocketHandler {
 
         } catch (DataAccessException | IOException e) {
             Error error = new Error(e.getMessage());
-            try {
-                session.getRemote().sendString(new Gson().toJson(error));
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            session.getRemote().sendString(new Gson().toJson(error));
         }
     }
 

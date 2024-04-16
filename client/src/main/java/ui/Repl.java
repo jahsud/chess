@@ -11,7 +11,6 @@ import static ui.EscapeSequences.*;
 
 public class Repl implements NotificationHandler {
     private final Client client;
-    private final Board board = new Board();
 
     public Repl(String serverUrl) throws ResponseException {
         client = new Client(serverUrl, this);
@@ -50,7 +49,7 @@ public class Repl implements NotificationHandler {
     @Override
     public void load(LoadGame loadGame) {
         ChessGame.TeamColor teamColor = client.getTeamColor();
-        board.draw(loadGame.game, teamColor);
+        Board.draw(loadGame.game, teamColor);
         printPrompt();
     }
 
