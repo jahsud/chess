@@ -5,12 +5,16 @@ import chess.*;
 import static ui.EscapeSequences.*;
 
 public class Board {
-    int number = 0;
+    static int number = 0;
 
-    private final String[] columns = new String[]{SPACE, "a", "b", "c", "d", "e", "f", "g", "h", SPACE};
-    private final String[] rows = new String[]{"1", "2", "3", "4", "5", "6", "7", "8"};
+    private static final String[] columns = new String[]{SPACE, "a", "b", "c", "d", "e", "f", "g", "h", SPACE};
+    private static final String[] rows = new String[]{"1", "2", "3", "4", "5", "6", "7", "8"};
 
-    public void draw(ChessGame game, ChessGame.TeamColor teamColor) {
+    private static ChessGame currentGame;
+
+    public static void draw(ChessGame game, ChessGame.TeamColor teamColor) {
+
+        currentGame = game;
 
         ChessBoard board = game.getBoard();
 
@@ -24,7 +28,7 @@ public class Board {
 
     }
 
-    private void drawWhites(ChessBoard board) {
+    private static void drawWhites(ChessBoard board) {
         System.out.println(ERASE_SCREEN + RESET_BG_COLOR + SET_TEXT_COLOR_WHITE);
 
         for (String column : columns) {
@@ -59,7 +63,7 @@ public class Board {
 
     }
 
-    private void drawBlacks(ChessBoard board) {
+    private static void drawBlacks(ChessBoard board) {
         System.out.println(ERASE_SCREEN + RESET_BG_COLOR + SET_TEXT_COLOR_WHITE);
 
         for (int i = columns.length - 1; i >= 0; i--) {
@@ -94,7 +98,7 @@ public class Board {
 
     }
 
-    private void drawPiece(ChessPiece chessPiece, String bgColor) {
+    private static void drawPiece(ChessPiece chessPiece, String bgColor) {
         if (chessPiece == null) {
             System.out.print(bgColor + EMPTY + RESET_BG_COLOR);
         } else {
@@ -143,9 +147,10 @@ public class Board {
                 }
             }
         }
-
-
     }
 
+    public static void redraw() {
+        draw(currentGame, currentGame.getTeamTurn());
+    }
 
 }

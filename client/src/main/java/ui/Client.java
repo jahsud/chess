@@ -2,7 +2,6 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessMove;
-import chess.ChessPiece;
 import chess.ChessPosition;
 import websocket.NotificationHandler;
 import websocket.WebSocketFacade;
@@ -133,7 +132,7 @@ public class Client {
     }
 
     public String redraw() {
-
+        Board.redraw();
         return "";
     }
 
@@ -147,11 +146,10 @@ public class Client {
     public String move(String... params) throws ResponseException {
         assertSignedIn();
         if (params.length >= 2) {
-            var start = params[0];
-            var end = params[2];
-
-            ChessMove move = new ChessMove(null);
-            webSocket.move(authToken, gameID, start, end);
+            ChessPosition start = parseChessPosition(params[0]);
+            ChessPosition end = parseChessPosition(params[2]);
+            ChessMove move = new ChessMove(start, end, null);
+            webSocket.move(authToken, gameID, move);
             return "Moved from " + start + " to " + end + "\n";
         }
         throw new ResponseException(400, "Expected: <start> to <end>\n");
@@ -175,6 +173,13 @@ public class Client {
 
     public ChessGame.TeamColor getTeamColor() {
         return teamColor;
+    }
+
+    public ChessPosition parseChessPosition(String input) {
+        char rowChar = Character.toLowerCase(input.charAt(0));
+        int row = rowChar - 'a';
+        int col = Character.getNumericValue(input.charAt(1)) - 1;
+        return new ChessPosition(row, col);
     }
 
     private void assertSignedIn() throws ResponseException {

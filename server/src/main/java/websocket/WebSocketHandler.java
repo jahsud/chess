@@ -1,10 +1,11 @@
 package websocket;
 
-import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import dataAccess.*;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -39,18 +40,28 @@ public class WebSocketHandler {
         try {
             connections.addConnection(command.getAuthString(), command.gameID, session);
 
-            if (command.playerColor == null) {
-                throw new DataAccessException("Proper player color must be specified (WHITE/BLACK). Or type \"observe <ID>\" to join as an observer.\n");
+            if (command.getAuthString() == null) {
+                throw new DataAccessException("Auth token must be specified.\n");
             } else if (command.gameID == null) {
                 throw new DataAccessException("Game ID must be specified.\n");
-            } else {
-                ChessGame game = gameDAO.getGame(command.gameID).game();
-                if (game == null) {
-                    game = new ChessGame();
-                }
-                LoadGame loadGame = new LoadGame(game);
+            } else if (command.playerColor == null || (!command.playerColor.equals("WHITE") && !command.playerColor.equals("BLACK"))) {
+                throw new DataAccessException("Proper player color must be specified (WHITE/BLACK). Or type \"observe <ID>\" to join as an observer.\n");
+            }
 
-                AuthData auth = authDAO.getAuth(command.getAuthString());
+            GameData game = gameDAO.getGame(command.gameID);
+            AuthData auth = authDAO.getAuth(command.getAuthString());
+            UserData user = userDAO.getUser(auth.username());
+
+            if (game == null) {
+                throw new DataAccessException("Game does not exist.\n");
+            } else if (auth.authToken() == null) {
+                throw new DataAccessException("Invalid auth token.\n");
+            } else if (user.username() == null) {
+                throw new DataAccessException("User does not exist.\n");
+            } else {
+
+                LoadGame loadGame = new LoadGame(game.game());
+
                 String message = String.format("Player %s has joined the game for the %s team", auth.username(), command.playerColor);
                 Notification notification = new Notification(message);
 
@@ -72,16 +83,26 @@ public class WebSocketHandler {
         try {
             connections.addConnection(command.getAuthString(), command.gameID, session);
 
-            if (command.gameID == null) {
+            if (command.getAuthString() == null) {
+                throw new DataAccessException("Auth token must be specified.\n");
+            } else if (command.gameID == null) {
                 throw new DataAccessException("Game ID must be specified.\n");
-            } else {
-                ChessGame game = gameDAO.getGame(command.gameID).game();
-                if (game == null) {
-                    game = new ChessGame();
-                }
-                LoadGame loadGame = new LoadGame(game);
+            }
 
-                AuthData auth = authDAO.getAuth(command.getAuthString());
+            GameData game = gameDAO.getGame(command.gameID);
+            AuthData auth = authDAO.getAuth(command.getAuthString());
+            UserData user = userDAO.getUser(auth.username());
+
+            if (game == null) {
+                throw new DataAccessException("Game does not exist.\n");
+            } else if (auth.authToken() == null) {
+                throw new DataAccessException("Invalid auth token.\n");
+            } else if (user.username() == null) {
+                throw new DataAccessException("User does not exist.\n");
+            } else {
+
+                LoadGame loadGame = new LoadGame(game.game());
+
                 String message = String.format("Player %s has joined the game as an observer", auth.username());
                 Notification notification = new Notification(message);
 
@@ -102,16 +123,35 @@ public class WebSocketHandler {
     private void makeMove(MakeMove command, Session session) {
         try {
 
-            if (command.gameID == null) {
+            if (command.getAuthString() == null) {
+                throw new DataAccessException("Auth token must be specified.\n");
+            } else if (command.gameID == null) {
                 throw new DataAccessException("Game ID must be specified.\n");
-            } else {
-                ChessGame game = gameDAO.getGame(command.gameID).game();
-                if (game == null) {
-                    game = new ChessGame();
-                }
-                LoadGame loadGame = new LoadGame(game);
+            } else if (command.move == null) {
+                throw new DataAccessException("Move must be specified.\n");
+            }
 
-                AuthData auth = authDAO.getAuth(command.getAuthString());
+            GameData game = gameDAO.getGame(command.gameID);
+            AuthData auth = authDAO.getAuth(command.getAuthString());
+            UserData user = userDAO.getUser(auth.username());
+
+            if (game == null) {
+                throw new DataAccessException("Game does not exist.\n");
+            } else if (auth.authToken() == null) {
+                throw new DataAccessException("Invalid auth token.\n");
+            } else if (user.username() == null) {
+                throw new DataAccessException("User does not exist.\n");
+            } else if (game.game() == null) {
+                throw new DataAccessException("Game has not started yet.\n");
+            } else if (game.game().getTeamTurn().toString().equals("WHITE") && !game.whiteUsername().equals(auth.username())) {
+                throw new DataAccessException("It is not your turn.\n");
+            } else if (game.game().getTeamTurn().toString().equals("BLACK") && !game.blackUsername().equals(auth.username())) {
+                throw new DataAccessException("It is not your turn.\n");
+            } else {
+
+                game.game().makeMove(command.move);
+
+                LoadGame loadGame = new LoadGame(game.game());
                 String message = String.format("Player %s has made a move", auth.username());
                 Notification notification = new Notification(message);
 
@@ -119,7 +159,7 @@ public class WebSocketHandler {
                 connections.broadcast(command.getAuthString(), command.gameID, notification);
             }
 
-        } catch (DataAccessException | IOException e) {
+        } catch (DataAccessException | IOException | InvalidMoveException e) {
             Error error = new Error(e.getMessage());
             try {
                 session.getRemote().sendString(new Gson().toJson(error));
@@ -139,7 +179,7 @@ public class WebSocketHandler {
                 String message = String.format("Player %s has left the game", auth.username());
                 Notification notification = new Notification(message);
 
-                connections.removeConnection(command.getAuthString(), command.gameID, session);
+                connections.removeConnection(command.getAuthString());
                 connections.broadcast(command.getAuthString(), command.gameID, notification);
             }
 

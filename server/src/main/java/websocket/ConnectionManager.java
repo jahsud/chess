@@ -1,13 +1,10 @@
 package websocket;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import webSocketMessages.serverMessages.*;
-import webSocketMessages.serverMessages.Error;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,12 +16,8 @@ public class ConnectionManager {
         connections.put(authToken, connection);
     }
 
-    public void removeConnection(String authToken, Integer gameID, Session session) {
-        for (var connection : connections.values()) {
-            if (connection.session.isOpen() && connection.authToken.equals(authToken) && Objects.equals(connection.gameID, gameID)) {
-                connections.remove(authToken);
-            }
-        }
+    public void removeConnection(String authToken) {
+        connections.remove(authToken);
     }
 
     public void broadcast(String excludeAuthToken, Integer gameID, Notification message) throws IOException {

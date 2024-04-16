@@ -16,7 +16,7 @@ public class MySqlGameDAO implements GameDAO {
 
     private final Gson gson = new Gson();
 
-    public MySqlGameDAO () {
+    public MySqlGameDAO() {
         String[] createStatements = {
                 """
             CREATE TABLE IF NOT EXISTS games (
@@ -36,20 +36,20 @@ public class MySqlGameDAO implements GameDAO {
     }
 
     @Override
-    public void clear () throws DataAccessException {
+    public void clear() throws DataAccessException {
         var statement = "TRUNCATE games";
         executeUpdate(statement);
     }
 
     @Override
-    public GameData createGame (String gameName) throws DataAccessException {
+    public GameData createGame(String gameName) throws DataAccessException {
         var statement = "INSERT INTO games (gameName) VALUES (?)";
         int gameID = executeUpdate(statement, gameName);
-        return new GameData(gameID, null, null, gameName, null);
+        return new GameData(gameID, null, null, gameName, new ChessGame());
     }
 
     @Override
-    public GameData getGame (int gameID) throws DataAccessException {
+    public GameData getGame(int gameID) throws DataAccessException {
         var statement = "SELECT * FROM games WHERE gameId = ?";
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement)) {
@@ -66,14 +66,14 @@ public class MySqlGameDAO implements GameDAO {
     }
 
     @Override
-    public void updateGame (int gameID, String whiteUsername, String blackUsername) throws DataAccessException {
+    public void updateGame(int gameID, String whiteUsername, String blackUsername) throws DataAccessException {
         var newGame = gson.toJson(getGame(gameID).game());
         var statement = "UPDATE games SET whiteUsername = ?, blackUsername = ?, game = ? WHERE gameId = ?";
         executeUpdate(statement, whiteUsername, blackUsername, newGame, gameID);
     }
 
     @Override
-    public Collection<GameData> listGames () throws DataAccessException {
+    public Collection<GameData> listGames() throws DataAccessException {
         var games = new ArrayList<GameData>();
         var statement = "SELECT * FROM games";
         try (var conn = DatabaseManager.getConnection()) {
@@ -89,7 +89,7 @@ public class MySqlGameDAO implements GameDAO {
         return games;
     }
 
-    private GameData readGame (ResultSet rs) throws SQLException {
+    private GameData readGame(ResultSet rs) throws SQLException {
         int gameID = rs.getInt("gameId");
         String whiteUsername = rs.getString("whiteUsername");
         String blackUsername = rs.getString("blackUsername");

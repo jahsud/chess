@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import ui.ResponseException;
 import webSocketMessages.serverMessages.Notification;
@@ -27,16 +28,13 @@ public class WebSocketFacade extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketUri);
 
-            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
-                @Override
-                public void onMessage(String message) {
-                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    switch (serverMessage.getServerMessageType()) {
-                        case NOTIFICATION ->
-                                notificationHandler.notify(new Gson().fromJson(message, Notification.class));
-                        case LOAD_GAME -> notificationHandler.load(new Gson().fromJson(message, LoadGame.class));
-                        case ERROR -> notificationHandler.warn(new Gson().fromJson(message, Error.class));
-                    }
+            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
+                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                switch (serverMessage.getServerMessageType()) {
+                    case NOTIFICATION ->
+                            notificationHandler.notify(new Gson().fromJson(message, Notification.class));
+                    case LOAD_GAME -> notificationHandler.load(new Gson().fromJson(message, LoadGame.class));
+                    case ERROR -> notificationHandler.warn(new Gson().fromJson(message, Error.class));
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException e) {
@@ -75,12 +73,12 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void move(String authToken, Integer gameID, String start, String end) {
+    public void move(String authToken, Integer gameID, ChessMove move) throws ResponseException {
         try {
-            var command = new MakeMove(authToken, gameID, start, end);
+            var command = new MakeMove(authToken, gameID, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new ResponseException(500, e.getMessage());
         }
     }
 }
