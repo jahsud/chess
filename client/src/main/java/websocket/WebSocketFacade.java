@@ -28,12 +28,16 @@ public class WebSocketFacade extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketUri);
 
-            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
-                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                switch (serverMessage.getServerMessageType()) {
-                    case NOTIFICATION -> notificationHandler.notify(new Gson().fromJson(message, Notification.class));
-                    case LOAD_GAME -> notificationHandler.load(new Gson().fromJson(message, LoadGame.class));
-                    case ERROR -> notificationHandler.warn(new Gson().fromJson(message, Error.class));
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
+                public void onMessage(String message) {
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    switch (serverMessage.getServerMessageType()) {
+                        case NOTIFICATION ->
+                                notificationHandler.notify(new Gson().fromJson(message, Notification.class));
+                        case LOAD_GAME -> notificationHandler.load(new Gson().fromJson(message, LoadGame.class));
+                        case ERROR -> notificationHandler.warn(new Gson().fromJson(message, Error.class));
+                    }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException e) {
