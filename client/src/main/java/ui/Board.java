@@ -18,8 +18,6 @@ public class Board {
 
         ChessBoard board = game.getBoard();
 
-        ChessGame.TeamColor teamTurn = game.getTeamTurn();
-
         if (teamColor == ChessGame.TeamColor.WHITE) {
             drawWhites(board);
         } else {
@@ -153,6 +151,5 @@ public class Board {
     }
 
     public static void highlight(ChessPosition position) {
-
     }
 }

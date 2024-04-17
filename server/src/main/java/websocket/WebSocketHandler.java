@@ -1,9 +1,11 @@
 package websocket;
 
+import chess.ChessGame;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import dataAccess.*;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -34,7 +36,7 @@ public class WebSocketHandler {
         }
     }
 
-    private void joinPlayer(JoinPlayer command, Session session) throws IOException, DataAccessException {
+    private void joinPlayer(JoinPlayer command, Session session) throws IOException {
         try {
             connections.addConnection(command.getAuthString(), command.gameID, session);
 
@@ -122,15 +124,18 @@ public class WebSocketHandler {
             } else {
 
                 try {
-                    gameDAO.getGame(command.gameID).game().makeMove(command.move);
+
+                    GameData games = gameDAO.getGame(command.gameID);
+                    games.game().makeMove(command.move);
                     gameDAO.updateGame(command.gameID, gameDAO.getGame(command.gameID).whiteUsername(), gameDAO.getGame(command.gameID).blackUsername(), gameDAO.getGame(command.gameID).game());
 
-                    LoadGame loadGame = new LoadGame(gameDAO.getGame(command.gameID).game());
+                    LoadGame loadGame = new LoadGame(games.game());
                     session.getRemote().sendString(new Gson().toJson(loadGame));
 
                     String message = String.format("Player %s has made a move", authDAO.getAuth(command.getAuthString()).username());
                     Notification notification = new Notification(message);
                     connections.broadcast(command.getAuthString(), command.gameID, notification);
+
                 } catch (InvalidMoveException e) {
                     Error error = new Error(e.getMessage());
                     session.getRemote().sendString(new Gson().toJson(error));
