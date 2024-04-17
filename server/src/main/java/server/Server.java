@@ -21,9 +21,6 @@ public class Server {
     private final Gson gson = new Gson();
 
     public Server() {
-        // MemoryUserDAO userDAO = new MemoryUserDAO();
-        // MemoryGameDAO gameDAO = new MemoryGameDAO();
-        // MemoryAuthDAO authDAO = new MemoryAuthDAO();
 
         MySqlUserDAO userDAO = new MySqlUserDAO();
         MySqlGameDAO gameDAO = new MySqlGameDAO();
