@@ -151,5 +151,6 @@ public class Board {
     }
 
     public static void highlight(ChessPosition position) {
+
     }
 }

@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import dataAccess.*;
 import model.GameData;
+import model.UserData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -127,7 +128,7 @@ public class WebSocketHandler {
 
                     GameData games = gameDAO.getGame(command.gameID);
                     games.game().makeMove(command.move);
-                    gameDAO.updateGame(command.gameID, gameDAO.getGame(command.gameID).whiteUsername(), gameDAO.getGame(command.gameID).blackUsername(), gameDAO.getGame(command.gameID).game());
+                    gameDAO.updateGame(command.gameID, games.whiteUsername(), games.blackUsername(), games.game());
 
                     LoadGame loadGame = new LoadGame(games.game());
                     session.getRemote().sendString(new Gson().toJson(loadGame));

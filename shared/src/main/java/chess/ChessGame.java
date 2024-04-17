@@ -97,9 +97,9 @@ public class ChessGame {
 
         if (gameOver) {
             throw new InvalidMoveException("The game is over. No more moves can be made.");
-        }
-
-        if (piece.getTeamColor() != teamTurn) {
+        } else if (piece == null) {
+            throw new InvalidMoveException("No piece at the start position.");
+        } else if (piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("This is not your turn.");
         }
 

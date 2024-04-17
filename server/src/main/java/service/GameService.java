@@ -10,8 +10,6 @@ import result.CreateGameResult;
 import result.ListGamesResult;
 
 public class GameService {
-    // private final MemoryGameDAO gameDAO;
-    // private final MemoryAuthDAO authDAO;
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
 
@@ -45,26 +43,26 @@ public class GameService {
 
     public void joinGame(JoinGameRequest joinGameRequest) throws DataAccessException, BadRequestException, UnauthorizedException, AlreadyTakenException {
         AuthData auth = authDAO.getAuth(joinGameRequest.authToken());
-        GameData game = gameDAO.getGame(joinGameRequest.gameID());
-        if (game == null) {
+        GameData games = gameDAO.getGame(joinGameRequest.gameID());
+        if (games == null) {
             throw new BadRequestException("Game not found");
         }
         if (auth == null || !auth.authToken().equals(joinGameRequest.authToken())) {
             throw new UnauthorizedException("Invalid auth token");
         }
         if (joinGameRequest.playerColor() != null) {
-            if ((joinGameRequest.playerColor().equals("WHITE") && game.whiteUsername() != null) ||
-                    (joinGameRequest.playerColor().equals("BLACK") && game.blackUsername() != null)) {
+            if ((joinGameRequest.playerColor().equals("WHITE") && games.whiteUsername() != null) ||
+                    (joinGameRequest.playerColor().equals("BLACK") && games.blackUsername() != null)) {
                 throw new AlreadyTakenException("Color is already taken");
             }
             if (joinGameRequest.playerColor().equals("WHITE")) {
-                gameDAO.updateGame(joinGameRequest.gameID(), auth.username(), game.blackUsername(), game.game());
+                gameDAO.updateGame(joinGameRequest.gameID(), auth.username(), games.blackUsername(), games.game());
             } else {
-                gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername(), auth.username(), game.game());
+                gameDAO.updateGame(joinGameRequest.gameID(), games.whiteUsername(), auth.username(), games.game());
             }
         } else {
             // Add user as an observer
-            gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername(), game.blackUsername(), game.game());
+            gameDAO.updateGame(joinGameRequest.gameID(), games.whiteUsername(), games.blackUsername(), games.game());
         }
     }
 

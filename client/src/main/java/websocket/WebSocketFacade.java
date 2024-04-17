@@ -52,7 +52,7 @@ public class WebSocketFacade extends Endpoint {
     public void joinPlayer(String authToken, Integer gameID, String playerColor) throws ResponseException {
         try {
             var command = new JoinPlayer(authToken, gameID, playerColor);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+            send(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
         }
