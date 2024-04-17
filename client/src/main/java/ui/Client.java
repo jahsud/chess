@@ -39,7 +39,7 @@ public class Client {
                 case "leave" -> leave();
                 case "move" -> move(params);
                 case "resign" -> resign();
-                case "highlight" -> highlight();
+                case "highlight" -> highlight(params);
                 case "logout" -> logout();
                 case "quit" -> quit();
                 case "clear" -> clear();
@@ -150,21 +150,25 @@ public class Client {
             ChessPosition end = parseChessPosition(params[2]);
             ChessMove move = new ChessMove(start, end, null);
             webSocket.move(authToken, gameID, move);
-            return "Moved from " + start + " to " + end + "\n";
+            return "Moved from " + params[0] + " to " + params[2] + "\n";
         }
         throw new ResponseException(400, "Expected: <start> to <end>\n");
     }
 
     public String resign() throws ResponseException {
         assertSignedIn();
-        //server.resign(authToken);
+        webSocket.resign(authToken, gameID);
         state = State.LOGGED_IN;
         return "Resigned\n";
     }
 
-    public String highlight() {
-        //server.highlight(authToken);
-        return "";
+    public String highlight(String... params) throws ResponseException {
+        if (params.length >= 1) {
+            ChessPosition position = parseChessPosition(params[0]);
+            Board.highlight(position);
+            return "";
+        }
+        throw new ResponseException(400, "Expected: <position>\n");
     }
 
     public State getState() {

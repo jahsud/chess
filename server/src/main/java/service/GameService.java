@@ -15,16 +15,16 @@ public class GameService {
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
 
-    public GameService (GameDAO gameDAO, AuthDAO authDAO) {
+    public GameService(GameDAO gameDAO, AuthDAO authDAO) {
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
     }
 
-    public void clear () throws DataAccessException {
+    public void clear() throws DataAccessException {
         gameDAO.clear();
     }
 
-    public ListGamesResult listGames (ListGamesRequest listGamesRequest) throws DataAccessException, UnauthorizedException {
+    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws DataAccessException, UnauthorizedException {
         AuthData auth = authDAO.getAuth(listGamesRequest.authToken());
         if (auth == null || !auth.authToken().equals(listGamesRequest.authToken())) {
             throw new UnauthorizedException("Invalid auth token");
@@ -32,7 +32,7 @@ public class GameService {
         return new ListGamesResult(gameDAO.listGames(), null);
     }
 
-    public CreateGameResult createGame (CreateGameRequest createGameRequest) throws DataAccessException, BadRequestException, UnauthorizedException {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException, BadRequestException, UnauthorizedException {
         AuthData auth = authDAO.getAuth(createGameRequest.authToken());
         if (createGameRequest.gameName() == null || createGameRequest.authToken() == null) {
             throw new BadRequestException("Missing fields");
@@ -43,7 +43,7 @@ public class GameService {
         return new CreateGameResult(gameDAO.createGame(createGameRequest.gameName()).gameID(), null);
     }
 
-    public void joinGame (JoinGameRequest joinGameRequest) throws DataAccessException, BadRequestException, UnauthorizedException, AlreadyTakenException {
+    public void joinGame(JoinGameRequest joinGameRequest) throws DataAccessException, BadRequestException, UnauthorizedException, AlreadyTakenException {
         AuthData auth = authDAO.getAuth(joinGameRequest.authToken());
         GameData game = gameDAO.getGame(joinGameRequest.gameID());
         if (game == null) {
@@ -58,13 +58,13 @@ public class GameService {
                 throw new AlreadyTakenException("Color is already taken");
             }
             if (joinGameRequest.playerColor().equals("WHITE")) {
-                gameDAO.updateGame(joinGameRequest.gameID(), auth.username(), game.blackUsername());
+                gameDAO.updateGame(joinGameRequest.gameID(), auth.username(), game.blackUsername(), game.game());
             } else {
-                gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername(), auth.username());
+                gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername(), auth.username(), game.game());
             }
         } else {
             // Add user as an observer
-            gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername(), game.blackUsername());
+            gameDAO.updateGame(joinGameRequest.gameID(), game.whiteUsername(), game.blackUsername(), game.game());
         }
     }
 

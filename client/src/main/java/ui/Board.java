@@ -153,4 +153,7 @@ public class Board {
         draw(currentGame, currentGame.getTeamTurn());
     }
 
+    public static void highlight(ChessPosition position) {
+
+    }
 }

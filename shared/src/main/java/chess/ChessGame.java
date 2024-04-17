@@ -10,12 +10,12 @@ import java.util.*;
  */
 public class ChessGame {
 
-
     private ChessBoard board;
     private TeamColor teamTurn;
+    private boolean gameOver = false;
 
 
-    public ChessGame () {
+    public ChessGame() {
         // Initialize the game with the default starting board
         this.board = new ChessBoard();
         this.board.resetBoard();
@@ -25,7 +25,7 @@ public class ChessGame {
     /**
      * @return Which team's turn it is
      */
-    public TeamColor getTeamTurn () {
+    public TeamColor getTeamTurn() {
         return teamTurn;
     }
 
@@ -34,7 +34,7 @@ public class ChessGame {
      *
      * @param team the team whose turn it is
      */
-    public void setTeamTurn (TeamColor team) {
+    public void setTeamTurn(TeamColor team) {
         this.teamTurn = team;
     }
 
@@ -53,7 +53,7 @@ public class ChessGame {
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
-    public Collection<ChessMove> validMoves (ChessPosition startPosition) {
+    public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         // Get the valid moves for the piece at the start position
         ChessPiece piece = getBoard().getPiece(startPosition);
 
@@ -91,9 +91,13 @@ public class ChessGame {
      * @param move chess move to preform
      * @throws InvalidMoveException if move is invalid
      */
-    public void makeMove (ChessMove move) throws InvalidMoveException {
+    public void makeMove(ChessMove move) throws InvalidMoveException {
         //throw new RuntimeException("Not implemented");;
         ChessPiece piece = board.getPiece(move.getStartPosition());
+
+        if (gameOver) {
+            throw new InvalidMoveException("The game is over. No more moves can be made.");
+        }
 
         if (piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("This is not your turn.");
@@ -131,7 +135,7 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-    public boolean isInCheck (TeamColor teamColor) {
+    public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = findKingPosition(teamColor);
         TeamColor opponentColor = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
 
@@ -160,7 +164,7 @@ public class ChessGame {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
-    public boolean isInCheckmate (TeamColor teamColor) {
+    public boolean isInCheckmate(TeamColor teamColor) {
         ChessPosition kingPosition = findKingPosition(teamColor);
         Collection<ChessMove> kingMoves = validMoves(kingPosition);
 
@@ -174,7 +178,7 @@ public class ChessGame {
      * @param teamColor which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
      */
-    public boolean isInStalemate (TeamColor teamColor) {
+    public boolean isInStalemate(TeamColor teamColor) {
         // If the player is in check, it's not a stalemate.
         if (isInCheck(teamColor)) {
             return false;
@@ -200,7 +204,7 @@ public class ChessGame {
         return true;
     }
 
-    private ChessPosition findKingPosition (TeamColor teamColor) {
+    private ChessPosition findKingPosition(TeamColor teamColor) {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition currentPosition = new ChessPosition(row, col);
@@ -221,7 +225,7 @@ public class ChessGame {
      *
      * @param board the new board to use
      */
-    public void setBoard (ChessBoard board) {
+    public void setBoard(ChessBoard board) {
         this.board = board;
     }
 
@@ -230,12 +234,16 @@ public class ChessGame {
      *
      * @return the chessboard
      */
-    public ChessBoard getBoard () {
+    public ChessBoard getBoard() {
         return board;
     }
 
+    public void endGame() {
+        gameOver = true;
+    }
+
     @Override
-    public boolean equals (Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -246,7 +254,7 @@ public class ChessGame {
     }
 
     @Override
-    public int hashCode () {
+    public int hashCode() {
         int result = board != null ? board.hashCode() : 0;
         result = 31 * result + (teamTurn != null ? teamTurn.hashCode() : 0);
         return result;
