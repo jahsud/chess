@@ -100,7 +100,7 @@ public class ChessGame {
         } else if (piece == null) {
             throw new InvalidMoveException("No piece at the start position.");
         } else if (piece.getTeamColor() != teamTurn) {
-            throw new InvalidMoveException("This is not your turn.");
+            throw new InvalidMoveException("This is not your team.");
         }
 
         Collection<ChessMove> legalMoves = validMoves(move.getStartPosition());
@@ -240,6 +240,10 @@ public class ChessGame {
 
     public void endGame() {
         gameOver = true;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
     }
 
     @Override

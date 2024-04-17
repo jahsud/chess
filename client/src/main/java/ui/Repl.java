@@ -49,13 +49,13 @@ public class Repl implements NotificationHandler {
     @Override
     public void load(LoadGame loadGame) {
         ChessGame.TeamColor teamColor = client.getTeamColor();
-        Board.draw(loadGame.game, teamColor);
+        Board.draw(loadGame.game, teamColor, null, null);
         printPrompt();
     }
 
     @Override
     public void warn(Error error) {
-        System.out.print("\n" + SET_TEXT_COLOR_RED + "Error: " + error.errorMessage + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + SET_TEXT_COLOR_RED + "Error: " + error.errorMessage + "\n" + SET_TEXT_COLOR_GREEN);
         printPrompt();
     }
 

@@ -132,12 +132,15 @@ public class Client {
     }
 
     public String redraw() {
-        Board.redraw();
+        Board.redraw(teamColor);
         return "";
     }
 
     public String leave() throws ResponseException {
         assertSignedIn();
+        if (state != State.IN_GAME) {
+            throw new ResponseException(400, "You're not playing a game\n");
+        }
         webSocket.leave(authToken, gameID);
         state = State.LOGGED_IN;
         return "Left game " + gameID + "\n";
@@ -157,15 +160,20 @@ public class Client {
 
     public String resign() throws ResponseException {
         assertSignedIn();
-        webSocket.resign(authToken, gameID);
-        state = State.LOGGED_IN;
-        return "Resigned\n";
+        if (state == State.IN_GAME) {
+            webSocket.resign(authToken, gameID);
+            state = State.LOGGED_IN;
+            teamColor = null;
+            return "Resigned\n";
+        } else {
+            throw new ResponseException(400, "You're not playing a game\n");
+        }
     }
 
     public String highlight(String... params) throws ResponseException {
         if (params.length >= 1) {
             ChessPosition position = parseChessPosition(params[0]);
-            Board.highlight(position);
+            Board.highlight(teamColor, position);
             return "";
         }
         throw new ResponseException(400, "Expected: <position>\n");
@@ -180,9 +188,9 @@ public class Client {
     }
 
     public ChessPosition parseChessPosition(String input) {
-        char rowChar = Character.toLowerCase(input.charAt(0));
-        int row = rowChar - 'a';
-        int col = Character.getNumericValue(input.charAt(1)) - 1;
+        char colChar = Character.toLowerCase(input.charAt(0));
+        int col = colChar - 'a' + 1;
+        int row = Character.getNumericValue(input.charAt(1));
         return new ChessPosition(row, col);
     }
 
@@ -220,7 +228,7 @@ public class Client {
                     SET_TEXT_COLOR_BLUE + "leave" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "game\n" +
                     SET_TEXT_COLOR_BLUE + "move <start> to <end>" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "position\n" +
                     SET_TEXT_COLOR_BLUE + "resign" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "game\n" +
-                    SET_TEXT_COLOR_BLUE + "highlight" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "legal moves\n" +
+                    SET_TEXT_COLOR_BLUE + "highlight <start>" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "legal moves\n" +
                     SET_TEXT_COLOR_BLUE + "help" + SET_TEXT_COLOR_WHITE + " - " + SET_TEXT_COLOR_MAGENTA + "with possible commands\n";
         }
     }

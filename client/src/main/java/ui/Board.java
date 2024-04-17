@@ -2,31 +2,35 @@ package ui;
 
 import chess.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import static ui.EscapeSequences.*;
 
 public class Board {
-    static int number = 0;
 
     private static final String[] columns = new String[]{SPACE, "a", "b", "c", "d", "e", "f", "g", "h", SPACE};
     private static final String[] rows = new String[]{"1", "2", "3", "4", "5", "6", "7", "8"};
 
     private static ChessGame currentGame;
+    static int number = 0;
 
-    public static void draw(ChessGame game, ChessGame.TeamColor teamColor) {
+    public static void draw(ChessGame game, ChessGame.TeamColor teamColor, ChessPosition startPosition, List<ChessPosition> validPositions) {
 
         currentGame = game;
-
         ChessBoard board = game.getBoard();
 
         if (teamColor == ChessGame.TeamColor.WHITE) {
-            drawWhites(board);
+            drawWhites(board, startPosition, validPositions);
         } else {
-            drawBlacks(board);
+            drawBlacks(board, startPosition, validPositions);
         }
 
     }
 
-    private static void drawWhites(ChessBoard board) {
+    private static void drawWhites(ChessBoard board, ChessPosition startPosition, List<ChessPosition> validPositions) {
+
         System.out.println(ERASE_SCREEN + RESET_BG_COLOR + SET_TEXT_COLOR_WHITE);
 
         for (String column : columns) {
@@ -39,7 +43,7 @@ public class Board {
                 if (j == 0) {
                     System.out.print(SPACE + rows[i - 1] + SPACE);
                 } else if (j < 9) {
-                    drawCell(board, number, i, j);
+                    drawCell(board, number, startPosition, validPositions, i, j);
                 } else {
                     System.out.print(SPACE + rows[i - 1] + SPACE);
                 }
@@ -56,7 +60,7 @@ public class Board {
 
     }
 
-    private static void drawBlacks(ChessBoard board) {
+    private static void drawBlacks(ChessBoard board, ChessPosition startPosition, List<ChessPosition> validPositions) {
         System.out.println(ERASE_SCREEN + RESET_BG_COLOR + SET_TEXT_COLOR_WHITE);
 
         for (int i = columns.length - 1; i >= 0; i--) {
@@ -69,7 +73,7 @@ public class Board {
                 if (j == 9) {
                     System.out.print(SPACE + rows[i - 1] + SPACE);
                 } else if (j > 0) {
-                    drawCell(board, number, i, j);
+                    drawCell(board, number, startPosition, validPositions, i, j);
                 } else {
                     System.out.print(SPACE + rows[i - 1] + SPACE);
                 }
@@ -86,9 +90,15 @@ public class Board {
 
     }
 
-    private static void drawCell(ChessBoard board, int number, int i, int j) {
+    private static void drawCell(ChessBoard board, int number, ChessPosition startPosition, List<ChessPosition> validPositions, int i, int j) {
         ChessPiece chessPiece = board.getPiece(new ChessPosition(i, j));
-        if (number % 2 == 0) {
+        boolean toHighlight = validPositions != null && validPositions.contains(new ChessPosition(i, j));
+
+        if (startPosition != null && startPosition.equals(new ChessPosition(i, j))) {
+            drawPiece(chessPiece, SET_BG_COLOR_YELLOW);
+        } else if (toHighlight) {
+            drawPiece(chessPiece, SET_BG_COLOR_GREEN);
+        } else if (number % 2 == 0) {
             drawPiece(chessPiece, SET_BG_COLOR_LIGHT_GREY);
         } else {
             drawPiece(chessPiece, SET_BG_COLOR_DARK_GREY);
@@ -146,11 +156,18 @@ public class Board {
         }
     }
 
-    public static void redraw() {
-        draw(currentGame, currentGame.getTeamTurn());
+    public static void redraw(ChessGame.TeamColor teamColor) {
+        draw(currentGame, teamColor, null, null);
     }
 
-    public static void highlight(ChessPosition position) {
+    public static void highlight(ChessGame.TeamColor teamColor, ChessPosition startPosition) {
+        Collection<ChessMove> validMoves = currentGame.validMoves(startPosition);
+        List<ChessPosition> validPositions = new ArrayList<>();
 
+        for (ChessMove move : validMoves) {
+            validPositions.add(move.getEndPosition());
+        }
+
+        draw(currentGame, teamColor, startPosition, validPositions);
     }
 }

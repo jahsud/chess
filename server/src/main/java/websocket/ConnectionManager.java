@@ -20,12 +20,21 @@ public class ConnectionManager {
         connections.remove(authToken);
     }
 
-    public void broadcast(String excludeAuthToken, Integer gameID, Notification message) throws IOException {
+    public void broadcastToOthers(String excludeAuthToken, Integer gameID, String message) throws IOException {
         for (var connection : connections.values()) {
             if (connection.session.isOpen() && !connection.authToken.equals(excludeAuthToken) && Objects.equals(connection.gameID, gameID)) {
-                connection.send(new Gson().toJson(message));
+                connection.send(message);
             }
         }
     }
+
+    public void broadcastToAll(Integer gameID, String message) throws IOException {
+        for (var connection : connections.values()) {
+            if (connection.session.isOpen() && Objects.equals(connection.gameID, gameID)) {
+                connection.send(message);
+            }
+        }
+    }
+
 
 }
