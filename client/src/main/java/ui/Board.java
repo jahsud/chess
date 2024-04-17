@@ -41,12 +41,7 @@ public class Board {
                 if (j == 0) {
                     System.out.print(SPACE + rows[i - 1] + SPACE);
                 } else if (j < 9) {
-                    ChessPiece chessPiece = board.getPiece(new ChessPosition(i, j));
-                    if (number % 2 == 0) {
-                        drawPiece(chessPiece, SET_BG_COLOR_LIGHT_GREY);
-                    } else {
-                        drawPiece(chessPiece, SET_BG_COLOR_DARK_GREY);
-                    }
+                    drawCell(board, number, i, j);
                 } else {
                     System.out.print(SPACE + rows[i - 1] + SPACE);
                 }
@@ -76,12 +71,7 @@ public class Board {
                 if (j == 9) {
                     System.out.print(SPACE + rows[i - 1] + SPACE);
                 } else if (j > 0) {
-                    ChessPiece chessPiece = board.getPiece(new ChessPosition(i, j));
-                    if (number % 2 == 0) {
-                        drawPiece(chessPiece, SET_BG_COLOR_LIGHT_GREY);
-                    } else {
-                        drawPiece(chessPiece, SET_BG_COLOR_DARK_GREY);
-                    }
+                    drawCell(board, number, i, j);
                 } else {
                     System.out.print(SPACE + rows[i - 1] + SPACE);
                 }
@@ -96,6 +86,15 @@ public class Board {
         }
         System.out.println();
 
+    }
+
+    private static void drawCell(ChessBoard board, int number, int i, int j) {
+        ChessPiece chessPiece = board.getPiece(new ChessPosition(i, j));
+        if (number % 2 == 0) {
+            drawPiece(chessPiece, SET_BG_COLOR_LIGHT_GREY);
+        } else {
+            drawPiece(chessPiece, SET_BG_COLOR_DARK_GREY);
+        }
     }
 
     private static void drawPiece(ChessPiece chessPiece, String bgColor) {

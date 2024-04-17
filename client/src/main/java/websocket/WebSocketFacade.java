@@ -61,16 +61,16 @@ public class WebSocketFacade extends Endpoint {
     public void joinObserver(String authToken, Integer gameID) throws ResponseException {
         try {
             var command = new JoinObserver(authToken, gameID);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+            send(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
         }
     }
 
-    public void leave(String authToken2, Integer gameID2) throws ResponseException {
+    public void leave(String authToken, Integer gameID) throws ResponseException {
         try {
-            var command = new Leave(authToken2, gameID2);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+            var command = new Leave(authToken, gameID);
+            send(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
         }
@@ -79,7 +79,7 @@ public class WebSocketFacade extends Endpoint {
     public void move(String authToken, Integer gameID, ChessMove move) throws ResponseException {
         try {
             var command = new MakeMove(authToken, gameID, move);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+            send(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
         }
@@ -88,10 +88,13 @@ public class WebSocketFacade extends Endpoint {
     public void resign(String authToken, Integer gameID) throws ResponseException {
         try {
             var command = new Resign(authToken, gameID);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+            send(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
         }
     }
 
+    public void send(String command) throws IOException {
+        this.session.getBasicRemote().sendText(command);
+    }
 }
