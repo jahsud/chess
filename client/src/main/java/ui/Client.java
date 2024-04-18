@@ -171,6 +171,9 @@ public class Client {
     }
 
     public String highlight(String... params) throws ResponseException {
+        if (state != State.IN_GAME) {
+            throw new ResponseException(400, "You're not playing a game\n");
+        }
         if (params.length >= 1) {
             ChessPosition position = parseChessPosition(params[0]);
             Board.highlight(teamColor, position);

@@ -132,6 +132,11 @@ public class WebSocketHandler {
                     games.game().makeMove(command.move);
                     gameDAO.updateGame(command.gameID, games.whiteUsername(), games.blackUsername(), games.game());
 
+                    if (games.game().isInCheckmate(games.game().getTeamTurn())) {
+                        games.game().endGame();
+                        gameDAO.updateGame(command.gameID, games.whiteUsername(), games.blackUsername(), games.game());
+                    }
+
                     LoadGame loadGame = new LoadGame(games.game());
                     connections.broadcastToAll(command.gameID, new Gson().toJson(loadGame));
 
@@ -210,14 +215,14 @@ public class WebSocketHandler {
                 throw new DataAccessException("Auth token must be specified.");
             } else if (command.gameID == null) {
                 throw new DataAccessException("Game ID must be specified.");
+            } else if (gameDAO.getGame(command.gameID).game().isGameOver()) {
+                throw new DataAccessException("Game is over.\n");
             } else if (gameDAO.getGame(command.gameID) == null || gameDAO.getGame(command.gameID).game() == null) {
                 throw new DataAccessException("Game has not started yet.\n");
             } else if (authDAO.getAuth(command.getAuthString()) == null || authDAO.getAuth(command.getAuthString()).authToken() == null) {
                 throw new DataAccessException("Invalid auth token.\n");
             } else if (userDAO.getUser(authDAO.getAuth(command.getAuthString()).username()) == null || userDAO.getUser(authDAO.getAuth(command.getAuthString()).username()).username() == null) {
                 throw new DataAccessException("User does not exist.\n");
-            } else if (gameDAO.getGame(command.gameID).game().isGameOver()) {
-                throw new DataAccessException("Game is over.\n");
             } else {
 
                 var playerResigning = authDAO.getAuth(command.getAuthString()).username();
@@ -229,7 +234,7 @@ public class WebSocketHandler {
                     game.endGame();
                     gameDAO.updateGame(command.gameID, whitePlayerInGame, blackPlayerInGame, game);
 
-                    String message = String.format("Player %s has resigned", playerResigning);
+                    String message = String.format("Player %s has resigned. Game is over.", playerResigning);
                     Notification notification = new Notification(message);
 
                     connections.broadcastToAll(command.gameID, new Gson().toJson(notification));
